@@ -87,12 +87,43 @@
       const notRegistered = total - registered;
       const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
 
+      
+      const bookedOnly = booked.filter(row => {
+        const date = new Date(row["Created Date"]);
+        return !isNaN(date) && date >= start && date <= end;
+      });
+
+      const bookedRegistered = bookedOnly.filter(isRegistered).length;
+      const bookedNotRegistered = bookedOnly.length - bookedRegistered;
+      const bookedPartnerSourced = bookedOnly.filter(row => row["Partner Sourced"] === 1).length;
+      const bookedNotPartnerSourced = bookedOnly.length - bookedPartnerSourced;
+
+      const percentBookedRegistered = bookedOnly.length > 0 ? ((bookedRegistered / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
+      const percentPartnerSourced = bookedOnly.length > 0 ? ((bookedPartnerSourced / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
+
       document.getElementById('result').innerHTML = `
+        <h3>Opps Created</h3>
+  
         <p><strong>Total Opportunities:</strong> ${total}</p>
         <p><strong>Registered:</strong> ${registered}</p>
         <p><strong>Not Registered:</strong> ${notRegistered}</p>
         <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
+      
+        <h3>Opps Booked</h3>
+        <p><strong>Total Opportunities:</strong> ${bookedOnly.length}</p>
+        <p><strong>Registered:</strong> ${bookedRegistered}</p>
+        <p><strong>Not Registered:</strong> ${bookedNotRegistered}</p>
+        <p><strong>Percent Registered:</strong> ${percentBookedRegistered}</p>
+        <p><strong>Partner Sourced:</strong> ${bookedPartnerSourced}</p>
+        <p><strong>Not Partner Sourced:</strong> ${bookedNotPartnerSourced}</p>
+        <p><strong>Percent Partner Sourced:</strong> ${percentPartnerSourced}</p>
       `;
+    }
+  });
+</script>
+</body>
+</html>
+
     });
   </script>
 </body>
