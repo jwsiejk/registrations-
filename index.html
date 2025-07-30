@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Opportunity Registration Summary</title>
+  <title>Opportunity Registration Summary (Dual CSV)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,43 +50,49 @@
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    document.getElementById('dateForm').addEventListener('submit', function (e) {
-      e.preventDefault();
+    async function parseCSV(url) {
+      return new Promise((resolve) => {
+        Papa.parse(url, {
+          download: true,
+          header: true,
+          dynamicTyping: true,
+          complete: function(results) {
+            resolve(results.data);
+          }
+        });
+      });
+    }
 
+    function isRegistered(row) {
+      const reg = row["Registration #"];
+      return reg && reg.toString().trim() !== "";
+    }
+
+    document.getElementById('dateForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
       const start = new Date(document.getElementById('start').value);
       const end = new Date(document.getElementById('end').value);
 
-      Papa.parse('opportunity_data_static.csv', {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const data = results.data;
-          let filtered = [];
+      const booked = await parseCSV('booked.csv');
+      const pipeline = await parseCSV('pipeline.csv');
+      const combined = booked.concat(pipeline);
 
-          data.forEach(row => {
-            const rawDate = row["Created Date"];
-            const validDate = new Date(rawDate);
-
-            if (!isNaN(validDate.getTime()) && validDate >= start && validDate <= end) {
-              filtered.push(row);
-            } else {
-              console.warn("Skipping row with invalid or out-of-range date:", rawDate);
-            }
-          });
-
-          const total = filtered.length;
-          const registered = filtered.filter(row => row.Registered?.toLowerCase() === 'true').length;
-          const notRegistered = total - registered;
-          const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
-
-          document.getElementById('result').innerHTML = `
-            <p><strong>Total Opportunities:</strong> ${total}</p>
-            <p><strong>Registered:</strong> ${registered}</p>
-            <p><strong>Not Registered:</strong> ${notRegistered}</p>
-            <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
-          `;
-        }
+      const filtered = combined.filter(row => {
+        const date = new Date(row["Created Date"]);
+        return !isNaN(date) && date >= start && date <= end;
       });
+
+      const total = filtered.length;
+      const registered = filtered.filter(isRegistered).length;
+      const notRegistered = total - registered;
+      const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
+
+      document.getElementById('result').innerHTML = `
+        <p><strong>Total Opportunities:</strong> ${total}</p>
+        <p><strong>Registered:</strong> ${registered}</p>
+        <p><strong>Not Registered:</strong> ${notRegistered}</p>
+        <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
+      `;
     });
   </script>
 </body>
