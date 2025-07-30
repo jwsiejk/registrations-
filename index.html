@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,6 +88,7 @@
       const pipeline = await parseCSV('pipeline.csv');
       const combined = booked.concat(pipeline);
 
+      // ------------------ Opportunities Created ------------------
       const createdFiltered = combined.filter(row => {
         const date = new Date(row["Created Date"]);
         return !isNaN(date) && date >= start && date <= end;
@@ -107,8 +107,9 @@
         <p><strong>Percent Registered:</strong> ${percentRegisteredCreated}</p>
       `;
 
+      // ------------------ Opportunities Booked (using Closed Date) ------------------
       const bookedFiltered = booked.filter(row => {
-        const date = new Date(row["Created Date"]);
+        const date = new Date(row["Closed Date"]);
         return !isNaN(date) && date >= start && date <= end;
       });
 
