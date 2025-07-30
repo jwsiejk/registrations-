@@ -61,13 +61,21 @@
         header: true,
         complete: function(results) {
           const data = results.data;
-          const filtered = data.filter(row => {
-            const date = new Date(row["Close Date"]);
-            return date >= start && date <= end;
+          let filtered = [];
+
+          data.forEach(row => {
+            const rawDate = row["Created Date"];
+            const validDate = new Date(rawDate);
+
+            if (!isNaN(validDate.getTime()) && validDate >= start && validDate <= end) {
+              filtered.push(row);
+            } else {
+              console.warn("Skipping row with invalid or out-of-range date:", rawDate);
+            }
           });
 
           const total = filtered.length;
-          const registered = filtered.filter(row => row.Registered.toLowerCase() === 'true').length;
+          const registered = filtered.filter(row => row.Registered?.toLowerCase() === 'true').length;
           const notRegistered = total - registered;
           const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
 
