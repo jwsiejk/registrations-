@@ -1,36 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Opportunity Registration Summary</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      padding: 40px;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
     .container {
       background: white;
-      padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
     }
-    form {
-      display: flex;
-      flex-direction: column;
+    h1 {
+      font-size: 1.5em;
     }
     label, input {
-      margin: 5px 0;
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
     }
     button {
-      margin-top: 10px;
       padding: 10px;
-    }
-    #result {
-      margin-top: 20px;
+      width: 100%;
     }
   </style>
 </head>
@@ -39,31 +39,38 @@
     <h1>Opportunity Registration Summary</h1>
     <form id="dateForm">
       <label for="start">Start Date (MM/DD/YYYY):</label>
-      <input type="text" id="start" required>
+      <input type="text" id="start" required />
       <label for="end">End Date (MM/DD/YYYY):</label>
-      <input type="text" id="end" required>
+      <input type="text" id="end" required />
       <button type="submit">Submit</button>
     </form>
     <div id="result"></div>
   </div>
-  <script>
-    document.getElementById('dateForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const start = document.getElementById('start').value;
-      const end = document.getElementById('end').value;
 
-      const response = await fetch('/filter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ start, end })
+  <script>
+    const data = [{"date": "2024-12-15", "registered": true}, {"date": "2025-01-10", "registered": false}, {"date": "2025-07-20", "registered": true}, {"date": "2025-06-05", "registered": false}, {"date": "2025-04-12", "registered": true}];
+
+    document.getElementById('dateForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const start = new Date(document.getElementById('start').value);
+      const end = new Date(document.getElementById('end').value);
+
+      const filtered = data.filter(item => {
+        const date = new Date(item.date);
+        return date >= start && date <= end;
       });
 
-      const result = await response.json();
+      const total = filtered.length;
+      const registered = filtered.filter(item => item.registered).length;
+      const notRegistered = total - registered;
+      const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
+
       document.getElementById('result').innerHTML = `
-        <p><strong>Total Opportunities:</strong> ${result.total}</p>
-        <p><strong>Registered:</strong> ${result.registered}</p>
-        <p><strong>Not Registered:</strong> ${result.not_registered}</p>
-        <p><strong>Percent Registered:</strong> ${result.percent_registered}</p>
+        <p><strong>Total Opportunities:</strong> ${total}</p>
+        <p><strong>Registered:</strong> ${registered}</p>
+        <p><strong>Not Registered:</strong> ${notRegistered}</p>
+        <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
       `;
     });
   </script>
