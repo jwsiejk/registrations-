@@ -107,9 +107,9 @@
         <p><strong>Percent Registered:</strong> ${percentRegisteredCreated}</p>
       `;
 
-      // ------------------ Opportunities Booked (using Closed Date) ------------------
+      // ------------------ Opportunities Booked (using Close Date) ------------------
       const bookedFiltered = booked.filter(row => {
-        const date = new Date(row["Closed Date"]);
+        const date = new Date(row["Close Date"]);
         return !isNaN(date) && date >= start && date <= end;
       });
 
