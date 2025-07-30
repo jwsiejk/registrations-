@@ -45,7 +45,12 @@
       <input type="text" id="end" required />
       <button type="submit">Submit</button>
     </form>
-    <div id="result"></div>
+    
+  <div id="result" style="display: flex; gap: 30px; flex-wrap: wrap;">
+    <div id="created" style="flex: 1; min-width: 300px;"></div>
+    <div id="booked" style="flex: 1; min-width: 300px;"></div>
+  </div>
+  
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -101,7 +106,10 @@
       const percentBookedRegistered = bookedOnly.length > 0 ? ((bookedRegistered / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
       const percentPartnerSourced = bookedOnly.length > 0 ? ((bookedPartnerSourced / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
 
-      document.getElementById('result').innerHTML = `
+      
+      document.getElementById('created').innerHTML = `
+        <h3>Opps Created</h3>
+  
         <h3>Opps Created</h3>
   
         <p><strong>Total Opportunities:</strong> ${total}</p>
@@ -117,7 +125,25 @@
         <p><strong>Partner Sourced:</strong> ${bookedPartnerSourced}</p>
         <p><strong>Not Partner Sourced:</strong> ${bookedNotPartnerSourced}</p>
         <p><strong>Percent Partner Sourced:</strong> ${percentPartnerSourced}</p>
-      `;
+      
+        `;
+
+        document.getElementById('booked').innerHTML = `
+          <h3>Opps Booked</h3>
+          <p><strong>Total Opportunities:</strong> ${bookedOnly.length}</p>
+          <p><strong>Registered:</strong> ${bookedRegistered}</p>
+          <p><strong>Not Registered:</strong> ${bookedNotRegistered}</p>
+          <p><strong>Percent Registered:</strong> ${percentBookedRegistered}</p>
+          <p><strong>Partner Sourced:</strong> ${bookedPartnerSourced}</p>
+          <p><strong>Not Partner Sourced:</strong> ${bookedNotPartnerSourced}</p>
+          <p><strong>Percent Partner Sourced:</strong> ${percentPartnerSourced}</p>
+        `;
+    }
+  });
+</script>
+</body>
+</html>
+
     }
   });
 </script>
