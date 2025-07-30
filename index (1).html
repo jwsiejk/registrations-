@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Opportunity Registration Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label, input {
+      margin: 5px 0;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Opportunity Registration Summary</h1>
+    <form id="dateForm">
+      <label for="start">Start Date (MM/DD/YYYY):</label>
+      <input type="text" id="start" required>
+      <label for="end">End Date (MM/DD/YYYY):</label>
+      <input type="text" id="end" required>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+  </div>
+  <script>
+    document.getElementById('dateForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+
+      const response = await fetch('/filter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start, end })
+      });
+
+      const result = await response.json();
+      document.getElementById('result').innerHTML = `
+        <p><strong>Total Opportunities:</strong> ${result.total}</p>
+        <p><strong>Registered:</strong> ${result.registered}</p>
+        <p><strong>Not Registered:</strong> ${result.not_registered}</p>
+        <p><strong>Percent Registered:</strong> ${result.percent_registered}</p>
+      `;
+    });
+  </script>
+</body>
+</html>
