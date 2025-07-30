@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,31 +48,37 @@
     <div id="result"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    const data = [{"date": "2024-12-15", "registered": true}, {"date": "2025-01-10", "registered": false}, {"date": "2025-07-20", "registered": true}, {"date": "2025-06-05", "registered": false}, {"date": "2025-04-12", "registered": true}];
-
     document.getElementById('dateForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const start = new Date(document.getElementById('start').value);
       const end = new Date(document.getElementById('end').value);
 
-      const filtered = data.filter(item => {
-        const date = new Date(item.date);
-        return date >= start && date <= end;
+      Papa.parse('opportunity_data_static.csv', {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const data = results.data;
+          const filtered = data.filter(row => {
+            const date = new Date(row["Close Date"]);
+            return date >= start && date <= end;
+          });
+
+          const total = filtered.length;
+          const registered = filtered.filter(row => row.Registered.toLowerCase() === 'true').length;
+          const notRegistered = total - registered;
+          const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
+
+          document.getElementById('result').innerHTML = `
+            <p><strong>Total Opportunities:</strong> ${total}</p>
+            <p><strong>Registered:</strong> ${registered}</p>
+            <p><strong>Not Registered:</strong> ${notRegistered}</p>
+            <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
+          `;
+        }
       });
-
-      const total = filtered.length;
-      const registered = filtered.filter(item => item.registered).length;
-      const notRegistered = total - registered;
-      const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
-
-      document.getElementById('result').innerHTML = `
-        <p><strong>Total Opportunities:</strong> ${total}</p>
-        <p><strong>Registered:</strong> ${registered}</p>
-        <p><strong>Not Registered:</strong> ${notRegistered}</p>
-        <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
-      `;
     });
   </script>
 </body>
