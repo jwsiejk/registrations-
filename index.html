@@ -4,22 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Opportunity Registration Summary (Dual CSV)</title>
+  <title>Opportunity Registration Summary</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      align-items: flex-start;
+      padding: 40px;
     }
     .container {
       background: white;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 400px;
+      width: 700px;
     }
     h1 {
       font-size: 1.5em;
@@ -32,6 +32,16 @@
     button {
       padding: 10px;
       width: 100%;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+    }
+    h3 {
+      margin-top: 0;
     }
   </style>
 </head>
@@ -45,12 +55,8 @@
       <input type="text" id="end" required />
       <button type="submit">Submit</button>
     </form>
-    
-  <div id="result" style="display: flex; gap: 30px; flex-wrap: wrap;">
-    <div id="created" style="flex: 1; min-width: 300px;"></div>
-    <div id="booked" style="flex: 1; min-width: 300px;"></div>
-  </div>
-  
+    <div id="created" class="section"></div>
+    <div id="booked" class="section"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -75,6 +81,7 @@
 
     document.getElementById('dateForm').addEventListener('submit', async function (e) {
       e.preventDefault();
+
       const start = new Date(document.getElementById('start').value);
       const end = new Date(document.getElementById('end').value);
 
@@ -82,74 +89,48 @@
       const pipeline = await parseCSV('pipeline.csv');
       const combined = booked.concat(pipeline);
 
-      const filtered = combined.filter(row => {
+      const createdFiltered = combined.filter(row => {
         const date = new Date(row["Created Date"]);
         return !isNaN(date) && date >= start && date <= end;
       });
 
-      const total = filtered.length;
-      const registered = filtered.filter(isRegistered).length;
-      const notRegistered = total - registered;
-      const percentRegistered = total > 0 ? ((registered / total) * 100).toFixed(2) + '%' : 'N/A';
+      const totalCreated = createdFiltered.length;
+      const registeredCreated = createdFiltered.filter(isRegistered).length;
+      const notRegisteredCreated = totalCreated - registeredCreated;
+      const percentRegisteredCreated = totalCreated > 0 ? ((registeredCreated / totalCreated) * 100).toFixed(2) + '%' : 'N/A';
 
-      
-      const bookedOnly = booked.filter(row => {
-        const date = new Date(row["Created Date"]);
-        return !isNaN(date) && date >= start && date <= end;
-      });
-
-      const bookedRegistered = bookedOnly.filter(isRegistered).length;
-      const bookedNotRegistered = bookedOnly.length - bookedRegistered;
-      const bookedPartnerSourced = bookedOnly.filter(row => row["Partner Sourced"] === 1).length;
-      const bookedNotPartnerSourced = bookedOnly.length - bookedPartnerSourced;
-
-      const percentBookedRegistered = bookedOnly.length > 0 ? ((bookedRegistered / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
-      const percentPartnerSourced = bookedOnly.length > 0 ? ((bookedPartnerSourced / bookedOnly.length) * 100).toFixed(2) + '%' : 'N/A';
-
-      
       document.getElementById('created').innerHTML = `
         <h3>Opps Created</h3>
-  
-        <h3>Opps Created</h3>
-  
-        <p><strong>Total Opportunities:</strong> ${total}</p>
-        <p><strong>Registered:</strong> ${registered}</p>
-        <p><strong>Not Registered:</strong> ${notRegistered}</p>
-        <p><strong>Percent Registered:</strong> ${percentRegistered}</p>
-      
+        <p><strong>Total Opportunities:</strong> ${totalCreated}</p>
+        <p><strong>Registered:</strong> ${registeredCreated}</p>
+        <p><strong>Not Registered:</strong> ${notRegisteredCreated}</p>
+        <p><strong>Percent Registered:</strong> ${percentRegisteredCreated}</p>
+      `;
+
+      const bookedFiltered = booked.filter(row => {
+        const date = new Date(row["Created Date"]);
+        return !isNaN(date) && date >= start && date <= end;
+      });
+
+      const totalBooked = bookedFiltered.length;
+      const registeredBooked = bookedFiltered.filter(isRegistered).length;
+      const notRegisteredBooked = totalBooked - registeredBooked;
+      const percentRegisteredBooked = totalBooked > 0 ? ((registeredBooked / totalBooked) * 100).toFixed(2) + '%' : 'N/A';
+
+      const partnerSourced = bookedFiltered.filter(row => row["Partner Sourced"] === 1).length;
+      const notPartnerSourced = totalBooked - partnerSourced;
+      const percentPartnerSourced = totalBooked > 0 ? ((partnerSourced / totalBooked) * 100).toFixed(2) + '%' : 'N/A';
+
+      document.getElementById('booked').innerHTML = `
         <h3>Opps Booked</h3>
-        <p><strong>Total Opportunities:</strong> ${bookedOnly.length}</p>
-        <p><strong>Registered:</strong> ${bookedRegistered}</p>
-        <p><strong>Not Registered:</strong> ${bookedNotRegistered}</p>
-        <p><strong>Percent Registered:</strong> ${percentBookedRegistered}</p>
-        <p><strong>Partner Sourced:</strong> ${bookedPartnerSourced}</p>
-        <p><strong>Not Partner Sourced:</strong> ${bookedNotPartnerSourced}</p>
+        <p><strong>Total Opportunities:</strong> ${totalBooked}</p>
+        <p><strong>Registered:</strong> ${registeredBooked}</p>
+        <p><strong>Not Registered:</strong> ${notRegisteredBooked}</p>
+        <p><strong>Percent Registered:</strong> ${percentRegisteredBooked}</p>
+        <p><strong>Partner Sourced:</strong> ${partnerSourced}</p>
+        <p><strong>Not Partner Sourced:</strong> ${notPartnerSourced}</p>
         <p><strong>Percent Partner Sourced:</strong> ${percentPartnerSourced}</p>
-      
-        `;
-
-        document.getElementById('booked').innerHTML = `
-          <h3>Opps Booked</h3>
-          <p><strong>Total Opportunities:</strong> ${bookedOnly.length}</p>
-          <p><strong>Registered:</strong> ${bookedRegistered}</p>
-          <p><strong>Not Registered:</strong> ${bookedNotRegistered}</p>
-          <p><strong>Percent Registered:</strong> ${percentBookedRegistered}</p>
-          <p><strong>Partner Sourced:</strong> ${bookedPartnerSourced}</p>
-          <p><strong>Not Partner Sourced:</strong> ${bookedNotPartnerSourced}</p>
-          <p><strong>Percent Partner Sourced:</strong> ${percentPartnerSourced}</p>
-        `;
-    }
-  });
-</script>
-</body>
-</html>
-
-    }
-  });
-</script>
-</body>
-</html>
-
+      `;
     });
   </script>
 </body>
