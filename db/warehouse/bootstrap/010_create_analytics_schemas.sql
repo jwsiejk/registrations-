@@ -1,0 +1,3 @@
+CREATE SCHEMA IF NOT EXISTS analytics_staging;
+CREATE SCHEMA IF NOT EXISTS analytics_intermediate;
+CREATE SCHEMA IF NOT EXISTS analytics_marts;

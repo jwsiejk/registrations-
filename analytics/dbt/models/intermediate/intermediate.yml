@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: int_customer_account_bridge
+    columns:
+      - name: customer_external_id
+        tests: [not_null, unique]
+
+  - name: int_order_line_enriched
+    columns:
+      - name: order_item_id
+        tests: [not_null, unique]
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp_orders')
+                field: order_id
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp_customers')
+                field: customer_id
+
+  - name: int_pipeline_enriched
+    columns:
+      - name: opportunity_id
+        tests: [not_null, unique]
+      - name: customer_external_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_customer_account_bridge')
+                field: customer_external_id

@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: stg_crm_accounts
+    columns:
+      - name: account_id
+        tests: [not_null, unique]
+      - name: customer_external_id
+        tests: [not_null, unique]
+
+  - name: stg_crm_contacts
+    columns:
+      - name: contact_id
+        tests: [not_null, unique]
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_crm_accounts')
+                field: account_id
+
+  - name: stg_crm_opportunities
+    columns:
+      - name: opportunity_id
+        tests: [not_null, unique]
+      - name: account_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_crm_accounts')
+                field: account_id
+
+  - name: stg_crm_opportunity_history
+    columns:
+      - name: opportunity_history_id
+        tests: [not_null, unique]
+      - name: opportunity_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_crm_opportunities')
+                field: opportunity_id
+
+  - name: stg_erp_customers
+    columns:
+      - name: customer_id
+        tests: [not_null, unique]
+      - name: customer_external_id
+        tests: [not_null, unique]
+
+  - name: stg_erp_products
+    columns:
+      - name: product_id
+        tests: [not_null, unique]
+
+  - name: stg_erp_orders
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp_customers')
+                field: customer_id
+
+  - name: stg_erp_order_items
+    columns:
+      - name: order_item_id
+        tests: [not_null, unique]
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp_orders')
+                field: order_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp_products')
+                field: product_id
+
+  - name: stg_erp_invoices
+    columns:
+      - name: invoice_id
+        tests: [not_null, unique]
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_erp_orders')
+                field: order_id

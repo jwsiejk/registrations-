@@ -19,6 +19,7 @@ REQUIRED_FILES = [
     "infra/docker/scripts/reseed-crm",
     "infra/docker/scripts/reseed-erp",
     "infra/docker/scripts/reseed-sources",
+    "infra/docker/scripts/bootstrap-warehouse",
     "infra/docker/init/crm/010-bootstrap.sh",
     "infra/docker/init/erp/010-bootstrap.sh",
 ]
@@ -27,10 +28,12 @@ REQUIRED_DIRECTORIES = [
     "infra/docker/init/crm",
     "infra/docker/init/erp",
     "infra/docker/init/warehouse",
+    "db/warehouse/bootstrap",
     "db/crm/schema",
     "db/crm/seed",
     "db/erp/schema",
     "db/erp/seed",
+    "db/warehouse/bootstrap",
 ]
 
 REQUIRED_SQL_DIRECTORIES = [
@@ -38,6 +41,7 @@ REQUIRED_SQL_DIRECTORIES = [
     "db/crm/seed",
     "db/erp/schema",
     "db/erp/seed",
+    "db/warehouse/bootstrap",
 ]
 
 

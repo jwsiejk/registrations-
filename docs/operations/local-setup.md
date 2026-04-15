@@ -21,13 +21,6 @@ This document explains exactly how to start and stop the local runtime environme
    - `WAREHOUSE_DB_PORT` (default `5435`)
 
 The root `.env` file is required by all Docker helper scripts.
-Scripts call Docker Compose with `--env-file .env` explicitly; they do not rely on implicit env-file discovery.
-The same root `.env` is also required by Docker infra validation (`tools/validate/check_docker_infra.py`), which is included in `make validate`.
-
-Service credentials/databases are defined in:
-- `infra/docker/compose/postgres-crm.env`
-- `infra/docker/compose/postgres-erp.env`
-- `infra/docker/compose/postgres-warehouse.env`
 
 ## Start environment
 
@@ -41,37 +34,41 @@ Equivalent direct command:
 bash infra/docker/scripts/up
 ```
 
-`docker-up` waits until all three services report `healthy`:
-- `postgres-crm`
-- `postgres-erp`
-- `postgres-warehouse`
-
-If services do not become healthy before the timeout, the script exits non-zero and prints compose status.
+`docker-up` returns success only after all three services report healthy.
 
 ## Bootstrap behavior on fresh volumes
 
-For **fresh** CRM/ERP volumes only, bootstrap happens in one flow:
-1. `docker compose up` creates empty `postgres_crm_data` / `postgres_erp_data` volumes.
-2. Postgres image entrypoint runs executable scripts mounted to `/docker-entrypoint-initdb.d`.
-3. Thin init scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`) replay mounted SQL in deterministic order:
-   - CRM: `/opt/bootstrap/crm/schema/*.sql` then `/opt/bootstrap/crm/seed/*.sql` (mounted from `db/crm/...`)
-   - ERP: `/opt/bootstrap/erp/schema/*.sql` then `/opt/bootstrap/erp/seed/*.sql` (mounted from `db/erp/...`)
+For fresh volumes, Postgres entrypoint runs mounted init scripts once per new volume.
 
-This bootstrap does **not** run on normal restarts of existing volumes. Warehouse remains runtime-only in this phase (no warehouse business bootstrap).
+- CRM: `infra/docker/init/crm/010-bootstrap.sh`
+  - Applies `db/crm/schema/*.sql` then `db/crm/seed/*.sql`
+- ERP: `infra/docker/init/erp/010-bootstrap.sh`
+  - Applies `db/erp/schema/*.sql` then `db/erp/seed/*.sql`
+- Warehouse: `infra/docker/init/warehouse/010-bootstrap.sh`
+  - Applies `db/warehouse/bootstrap/*.sql`
+  - Creates analytics-side schemas only (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+
+Warehouse bootstrap does not create Fivetran raw tables.
+
+## Apply warehouse bootstrap on running containers
+
+```bash
+make warehouse-bootstrap
+```
+
+Equivalent direct command:
+
+```bash
+bash infra/docker/scripts/bootstrap-warehouse
+```
+
+This command is safe and repeatable for existing warehouse volumes.
 
 ## Check status and health
 
 ```bash
 make docker-status
 ```
-
-Equivalent direct command:
-
-```bash
-bash infra/docker/scripts/status
-```
-
-Expected health state for each service: `healthy`.
 
 ## Reseed source systems (non-destructive to warehouse)
 
@@ -81,44 +78,29 @@ make docker-reseed-sources
 
 This rebuilds CRM and ERP schemas/data on running containers and does not reset warehouse data.
 
-See [`reset-reseed.md`](./reset-reseed.md) for full reset/reseed guidance.
-
 ## Stop environment
 
 ```bash
 make docker-down
 ```
 
-Equivalent direct command:
-
-```bash
-bash infra/docker/scripts/down
-```
-
 ## Reset environment (destructive)
-
-This removes containers and named volumes:
 
 ```bash
 make docker-reset
 ```
 
-Equivalent direct command:
-
-```bash
-bash infra/docker/scripts/reset
-```
+This removes containers and named volumes.
 
 ## Runtime script reference
 
 ### `infra/docker/scripts/up`
 - **Purpose:** Start local Postgres services and wait until all configured services report `healthy`.
-- **Inputs/Arguments:** No CLI arguments. Uses root `.env`, `infra/docker/compose.yaml`, and optional `DOCKER_UP_TIMEOUT_SECONDS` (default `120`).
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env`, `infra/docker/compose.yaml`, and optional `DOCKER_UP_TIMEOUT_SECONDS`.
 - **Exit behavior:**
-  - `0` when compose startup succeeds and all services become healthy before timeout
+  - `0` when startup succeeds and all services become healthy before timeout
   - `1` when `.env` is missing or health checks do not reach `healthy` before timeout
-- **Example:**
-  - `bash infra/docker/scripts/up`
+- **Example:** `bash infra/docker/scripts/up`
 
 ### `infra/docker/scripts/down`
 - **Purpose:** Stop and remove runtime containers/orphans without deleting named volumes.
@@ -126,8 +108,7 @@ bash infra/docker/scripts/reset
 - **Exit behavior:**
   - `0` when compose shutdown completes
   - `1` when `.env` is missing or compose returns an error
-- **Example:**
-  - `bash infra/docker/scripts/down`
+- **Example:** `bash infra/docker/scripts/down`
 
 ### `infra/docker/scripts/status`
 - **Purpose:** Print Docker Compose runtime status for local services.
@@ -135,43 +116,20 @@ bash infra/docker/scripts/reset
 - **Exit behavior:**
   - `0` when compose status command succeeds
   - `1` when `.env` is missing or compose returns an error
-- **Example:**
-  - `bash infra/docker/scripts/status`
+- **Example:** `bash infra/docker/scripts/status`
 
-## Bootstrap init script reference (automatic on first volume initialization)
-
-### `infra/docker/init/crm/010-bootstrap.sh`
-- **Purpose:** CRM first-volume bootstrap entrypoint script that applies committed CRM schema and seed SQL inside the Postgres container.
-- **Inputs/Arguments:** No CLI arguments. Executed automatically by Postgres entrypoint with `POSTGRES_USER`/`POSTGRES_DB`; reads mounted files `/opt/bootstrap/crm/schema/*.sql` and `/opt/bootstrap/crm/seed/*.sql`.
+### `infra/docker/scripts/bootstrap-warehouse`
+- **Purpose:** Apply committed warehouse bootstrap SQL to a running `postgres-warehouse` container.
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env`; executes `db/warehouse/bootstrap/*.sql` through mounted `/opt/bootstrap/warehouse/bootstrap/`.
 - **Exit behavior:**
-  - `0` when all CRM schema/seed files replay successfully
-  - non-zero when any SQL file fails (`ON_ERROR_STOP=1`) or required inputs are unavailable
-- **Example usage:**
-  - Automatic only: run `make docker-reset && make docker-up` to create a fresh CRM volume and trigger this script via Postgres initialization.
+  - `0` when all warehouse bootstrap SQL files are applied successfully
+  - `1` when `.env` is missing, container is unavailable, or any SQL step fails
+- **Example:** `bash infra/docker/scripts/bootstrap-warehouse`
 
-### `infra/docker/init/erp/010-bootstrap.sh`
-- **Purpose:** ERP first-volume bootstrap entrypoint script that applies committed ERP schema and seed SQL inside the Postgres container.
-- **Inputs/Arguments:** No CLI arguments. Executed automatically by Postgres entrypoint with `POSTGRES_USER`/`POSTGRES_DB`; reads mounted files `/opt/bootstrap/erp/schema/*.sql` and `/opt/bootstrap/erp/seed/*.sql`.
-- **Exit behavior:**
-  - `0` when all ERP schema/seed files replay successfully
-  - non-zero when any SQL file fails (`ON_ERROR_STOP=1`) or required inputs are unavailable
-- **Example usage:**
-  - Automatic only: run `make docker-reset && make docker-up` to create a fresh ERP volume and trigger this script via Postgres initialization.
+## Validation prerequisite
 
-## Port reference
-
-Default host-to-container mappings:
-
-- `localhost:5433 -> postgres-crm:5432`
-- `localhost:5434 -> postgres-erp:5432`
-- `localhost:5435 -> postgres-warehouse:5432`
-
-## Validation prerequisite (local and CI alignment)
-
-Before running either `python3 tools/validate/check_docker_infra.py` or full `make validate`, ensure root `.env` exists:
+Before running either `python3 tools/validate/check_docker_infra.py` or `make validate`, ensure root `.env` exists:
 
 ```bash
 cp .env.example .env
 ```
-
-CI uses the same approach and creates `.env` from `.env.example` before running `bash tools/validate/run_all.sh`.

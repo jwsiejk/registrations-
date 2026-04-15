@@ -1,0 +1,20 @@
+select
+  customer_external_id,
+  customer_id,
+  account_id,
+  customer_name,
+  account_name,
+  coalesce(customer_name, account_name) as display_customer_name,
+  customer_status,
+  account_status,
+  account_manager,
+  industry,
+  account_tier,
+  billing_country_code,
+  payment_terms_days,
+  credit_limit_usd,
+  annual_revenue_usd,
+  erp_created_at,
+  crm_created_at,
+  bridged_updated_at
+from {{ ref('int_customer_account_bridge') }}

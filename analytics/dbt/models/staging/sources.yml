@@ -1,0 +1,122 @@
+version: 2
+
+sources:
+  - name: fivetran_crm
+    schema: fivetran_crm
+    tables:
+      - name: accounts
+        columns:
+          - name: account_id
+            tests:
+              - not_null
+              - unique
+          - name: customer_external_id
+            tests:
+              - not_null
+              - unique
+      - name: contacts
+        columns:
+          - name: contact_id
+            tests:
+              - not_null
+              - unique
+          - name: account_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_crm', 'accounts')
+                    field: account_id
+      - name: opportunities
+        columns:
+          - name: opportunity_id
+            tests:
+              - not_null
+              - unique
+          - name: account_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_crm', 'accounts')
+                    field: account_id
+      - name: opportunity_history
+        columns:
+          - name: opportunity_history_id
+            tests:
+              - not_null
+              - unique
+          - name: opportunity_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_crm', 'opportunities')
+                    field: opportunity_id
+
+  - name: fivetran_erp
+    schema: fivetran_erp
+    tables:
+      - name: customers
+        columns:
+          - name: customer_id
+            tests:
+              - not_null
+              - unique
+          - name: customer_external_id
+            tests:
+              - not_null
+              - unique
+      - name: products
+        columns:
+          - name: product_id
+            tests:
+              - not_null
+              - unique
+      - name: orders
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+              - unique
+          - name: customer_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_erp', 'customers')
+                    field: customer_id
+      - name: order_items
+        columns:
+          - name: order_item_id
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_erp', 'orders')
+                    field: order_id
+          - name: product_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('fivetran_erp', 'products')
+                    field: product_id
+      - name: invoices
+        columns:
+          - name: invoice_id
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            tests:
+              - not_null
+              - unique
+              - relationships:
+                  arguments:
+                    to: source('fivetran_erp', 'orders')
+                    field: order_id

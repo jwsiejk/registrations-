@@ -1,12 +1,57 @@
 # Phase 04 - dbt
 
 ## Status
-Planned.
+Completed.
 
 ## Intent
-Initialize dbt project structure and baseline transformations.
+Implement warehouse bootstrap and a real dbt transformation layer for the local ELT lab.
 
-## Guardrails
-- Document project structure and model conventions.
-- Add or update testing guidance for dbt checks.
-- Update README and phase notes with setup impacts.
+## What changed in this phase
+
+1. Added warehouse bootstrap business SQL:
+   - `db/warehouse/bootstrap/010_create_analytics_schemas.sql`
+2. Added thin warehouse init entrypoint:
+   - `infra/docker/init/warehouse/010-bootstrap.sh`
+3. Wired warehouse bootstrap SQL mount in compose:
+   - `infra/docker/compose.yaml` mounts `db/warehouse` to `/opt/bootstrap/warehouse`
+4. Added repeatable bootstrap command for running warehouse containers:
+   - `infra/docker/scripts/bootstrap-warehouse`
+   - `make warehouse-bootstrap`
+5. Added dbt Core project:
+   - `analytics/dbt/dbt_project.yml`
+   - `analytics/dbt/profiles/profiles.template.yml`
+   - `analytics/dbt/requirements.txt`
+   - Layered staging/intermediate/marts models and YAML tests
+6. Added dbt source definitions against required raw schemas:
+   - `fivetran_crm` (`accounts`, `contacts`, `opportunities`, `opportunity_history`)
+   - `fivetran_erp` (`customers`, `products`, `orders`, `order_items`, `invoices`)
+7. Added Phase 04 Make targets:
+   - `dbt-profile-setup`, `dbt-install-deps`, `dbt-deps`, `dbt-parse`, `dbt-compile`, `dbt-raw-source-readiness`, `dbt-run`, `dbt-test`
+8. Added explicit raw-source readiness checker:
+   - `tools/validate/check_dbt_raw_sources.py`
+
+## Validation performed
+
+- `cp .env.example .env`
+- `make validate`
+- `make docker-up`
+- `make warehouse-bootstrap`
+- `make dbt-install-deps`
+- `make dbt-profile-setup`
+- `make dbt-deps`
+- `make dbt-parse`
+- `make dbt-compile`
+- `make dbt-raw-source-readiness`
+
+When raw readiness fails because manual Fivetran sync has not landed required tables, `dbt run` and `dbt test` are intentionally blocked and not treated as passing.
+
+## Remaining intentional blockers
+
+- Manual Fivetran trial setup and manual connector sync are still required to create and populate raw warehouse tables.
+- Until those actions are completed, `make dbt-raw-source-readiness` fails by design and `make dbt-run` / `make dbt-test` cannot complete successfully.
+
+## Explicitly out of scope
+
+- Any fake ingestion path from source systems into warehouse
+- Any automated Fivetran account or connector actions
+- Phase 05 mutation/re-sync scenarios
