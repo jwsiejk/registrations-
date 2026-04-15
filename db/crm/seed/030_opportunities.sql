@@ -1,0 +1,15 @@
+INSERT INTO opportunities (opportunity_id, account_id, primary_contact_id, opportunity_name, stage, amount_usd, close_date, is_closed, is_won, created_at, updated_at) VALUES
+  (3001, 1001, 2001, 'Northstar 2025 Platform Expansion', 'closed_won', 450000.00, '2025-01-20', TRUE, TRUE, '2024-09-01T11:00:00Z', '2025-01-20T17:00:00Z'),
+  (3002, 1001, 2002, 'Northstar Demand Forecasting Upgrade', 'negotiation', 280000.00, '2026-05-15', FALSE, FALSE, '2025-12-10T16:00:00Z', '2026-04-07T15:20:00Z'),
+  (3003, 1002, 2003, 'Blue Harbor Fleet Analytics', 'closed_won', 390000.00, '2025-06-30', TRUE, TRUE, '2025-01-14T13:10:00Z', '2025-06-30T18:20:00Z'),
+  (3004, 1002, 2004, 'Blue Harbor Dispatch Optimization', 'proposal', 175000.00, '2026-06-01', FALSE, FALSE, '2026-01-20T08:45:00Z', '2026-03-30T14:10:00Z'),
+  (3005, 1003, 2005, 'Helio Clinical Supply Standardization', 'closed_won', 620000.00, '2025-11-10', TRUE, TRUE, '2025-04-02T12:15:00Z', '2025-11-10T21:00:00Z'),
+  (3006, 1003, 2006, 'Helio Procurement Analytics Add-on', 'qualification', 210000.00, '2026-07-18', FALSE, FALSE, '2026-02-03T09:25:00Z', '2026-03-28T10:30:00Z'),
+  (3007, 1004, 2007, 'Red Canyon Process Automation', 'closed_lost', 330000.00, '2025-10-02', TRUE, FALSE, '2025-05-12T10:10:00Z', '2025-10-02T16:40:00Z'),
+  (3008, 1004, 2008, 'Red Canyon Renewals', 'closed_lost', 95000.00, '2025-12-01', TRUE, FALSE, '2025-09-16T13:35:00Z', '2025-12-01T15:00:00Z'),
+  (3009, 1005, 2009, 'Summit Enterprise Agreement', 'closed_won', 780000.00, '2025-12-22', TRUE, TRUE, '2025-07-08T17:10:00Z', '2025-12-22T20:20:00Z'),
+  (3010, 1005, 2010, 'Summit Logistics Module Rollout', 'negotiation', 340000.00, '2026-05-30', FALSE, FALSE, '2026-01-05T09:50:00Z', '2026-04-08T11:40:00Z'),
+  (3011, 1006, 2011, 'Crescent District Onboarding', 'closed_won', 165000.00, '2025-08-14', TRUE, TRUE, '2025-03-01T08:00:00Z', '2025-08-14T18:30:00Z'),
+  (3012, 1006, 2012, 'Crescent Multi-Campus Upgrade', 'proposal', 225000.00, '2026-06-22', FALSE, FALSE, '2026-02-12T14:20:00Z', '2026-04-05T10:00:00Z'),
+  (3013, 1007, 2013, 'Atlas Hospitality Renewal', 'closed_lost', 120000.00, '2025-09-28', TRUE, FALSE, '2025-06-15T09:15:00Z', '2025-09-28T15:55:00Z'),
+  (3014, 1008, 2015, 'Peakline Network Procurement Hub', 'qualification', 510000.00, '2026-08-11', FALSE, FALSE, '2026-01-25T13:05:00Z', '2026-03-27T12:20:00Z');

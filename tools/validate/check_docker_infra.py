@@ -16,6 +16,9 @@ REQUIRED_FILES = [
     "infra/docker/scripts/down",
     "infra/docker/scripts/status",
     "infra/docker/scripts/reset",
+    "infra/docker/scripts/reseed-crm",
+    "infra/docker/scripts/reseed-erp",
+    "infra/docker/scripts/reseed-sources",
 ]
 
 REQUIRED_DIRECTORIES = [

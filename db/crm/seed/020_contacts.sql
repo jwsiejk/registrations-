@@ -1,0 +1,17 @@
+INSERT INTO contacts (contact_id, account_id, first_name, last_name, email, job_title, lifecycle_stage, is_primary, created_at, updated_at) VALUES
+  (2001, 1001, 'Avery', 'Coleman', 'avery.coleman@northstarretail.com', 'VP Merchandising', 'customer', TRUE, '2024-01-12T09:30:00Z', '2026-03-10T12:00:00Z'),
+  (2002, 1001, 'Noah', 'Garcia', 'noah.garcia@northstarretail.com', 'Director Procurement', 'customer', FALSE, '2024-01-13T09:50:00Z', '2026-02-14T10:25:00Z'),
+  (2003, 1002, 'Mia', 'Patel', 'mia.patel@blueharborlogistics.com', 'COO', 'customer', TRUE, '2024-02-05T14:50:00Z', '2026-03-02T17:45:00Z'),
+  (2004, 1002, 'Liam', 'Nguyen', 'liam.nguyen@blueharborlogistics.com', 'IT Manager', 'sales_qualified', FALSE, '2024-02-07T15:10:00Z', '2026-01-18T09:05:00Z'),
+  (2005, 1003, 'Olivia', 'Brooks', 'olivia.brooks@heliohealth.com', 'CIO', 'customer', TRUE, '2024-02-21T12:20:00Z', '2026-03-26T07:20:00Z'),
+  (2006, 1003, 'Ethan', 'Reed', 'ethan.reed@heliohealth.com', 'Director Clinical Ops', 'customer', FALSE, '2024-02-22T12:45:00Z', '2025-10-30T14:15:00Z'),
+  (2007, 1004, 'Sophia', 'Lopez', 'sophia.lopez@redcanyonmfg.com', 'Plant Controller', 'former_customer', TRUE, '2024-03-06T11:25:00Z', '2025-12-10T16:30:00Z'),
+  (2008, 1004, 'Lucas', 'Turner', 'lucas.turner@redcanyonmfg.com', 'Operations Manager', 'former_customer', FALSE, '2024-03-06T11:40:00Z', '2025-12-12T10:00:00Z'),
+  (2009, 1005, 'Amelia', 'Johnson', 'amelia.johnson@summitenergy.com', 'VP Supply Chain', 'customer', TRUE, '2024-04-14T16:35:00Z', '2026-04-02T11:40:00Z'),
+  (2010, 1005, 'James', 'Wright', 'james.wright@summitenergy.com', 'CFO', 'customer', FALSE, '2024-04-15T09:05:00Z', '2026-02-09T19:10:00Z'),
+  (2011, 1006, 'Charlotte', 'Kim', 'charlotte.kim@crescentedu.org', 'Head of Procurement', 'customer', TRUE, '2024-05-06T10:40:00Z', '2026-02-15T15:50:00Z'),
+  (2012, 1006, 'Benjamin', 'Hughes', 'benjamin.hughes@crescentedu.org', 'IT Director', 'marketing_qualified', FALSE, '2024-05-07T10:55:00Z', '2026-01-09T12:05:00Z'),
+  (2013, 1007, 'Evelyn', 'Price', 'evelyn.price@atlashospitality.com', 'Procurement Lead', 'former_customer', TRUE, '2024-06-03T08:55:00Z', '2025-11-08T09:40:00Z'),
+  (2014, 1007, 'Henry', 'Murphy', 'henry.murphy@atlashospitality.com', 'Regional Finance Manager', 'lead', FALSE, '2024-06-05T13:45:00Z', '2025-10-25T13:45:00Z'),
+  (2015, 1008, 'Harper', 'Diaz', 'harper.diaz@peaklinetelecom.com', 'SVP Operations', 'customer', TRUE, '2024-07-16T14:10:00Z', '2026-03-22T20:50:00Z'),
+  (2016, 1008, 'William', 'Fisher', 'william.fisher@peaklinetelecom.com', 'Network Planning Director', 'sales_qualified', FALSE, '2024-07-18T14:30:00Z', '2026-03-29T08:35:00Z');

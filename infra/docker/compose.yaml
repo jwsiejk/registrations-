@@ -10,6 +10,7 @@ services:
     volumes:
       - postgres_crm_data:/var/lib/postgresql/data
       - ./init/crm:/docker-entrypoint-initdb.d:ro
+      - ../../db/crm:/opt/bootstrap/crm:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -28,6 +29,7 @@ services:
     volumes:
       - postgres_erp_data:/var/lib/postgresql/data
       - ./init/erp:/docker-entrypoint-initdb.d:ro
+      - ../../db/erp:/opt/bootstrap/erp:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
