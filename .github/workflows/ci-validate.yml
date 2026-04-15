@@ -1,4 +1,4 @@
-name: Validate Repository Foundation
+name: Validate Local ELT Lab Repository
 
 on:
   pull_request:
