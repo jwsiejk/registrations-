@@ -1,10 +1,14 @@
 # Local Fivetran ELT Lab
 
 ## Purpose
-This repository builds a realistic local ELT lab in phases.
+This repository provides a realistic local ELT lab with PostgreSQL sources, PostgreSQL warehouse destination, dbt transformations, and deterministic mutation scenarios.
+
+Design goal:
+
+`source Postgres -> manual Fivetran sync -> warehouse Postgres raw schemas -> dbt -> validation -> mutate -> manual re-sync -> validation`
 
 ## Current status
-Phase 01 through Phase 05 are in place:
+Phase 01 through Phase 06 are in place:
 
 - Repository standards, contracts, and validation tooling
 - Local Docker runtime with three PostgreSQL databases:
@@ -16,14 +20,21 @@ Phase 01 through Phase 05 are in place:
 - Warehouse bootstrap for analytics schemas (`db/warehouse/bootstrap`)
 - dbt Core transformation project under `analytics/dbt`
 - Explicit dbt schema routing to exact layer schemas (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
-- Pinned and aligned dbt packages: `dbt-core==1.10.13`, `dbt-postgres==1.10.13`
 - Explicit raw-source readiness check for expected Fivetran destination schemas:
   - `fivetran_crm`
   - `fivetran_erp`
-- Controlled, deterministic source-side mutation scenarios for CRM/ERP under `db/*/mutate`
-- Explicit mutation runner and Make targets for per-scenario simulation (`make mutate-list`)
+- Controlled source-side mutation scenarios for CRM/ERP under `db/*/mutate`
+- Final Phase 06 operator documentation for manual Fivetran and Proxy Agent setup
 
-Manual Fivetran setup/sync is still required for raw warehouse tables. This repo does not provide a fake ingestion fallback.
+Manual Fivetran actions remain manual by design. This repo does not automate Fivetran account/connector/destination/agent actions and does not include a fake ingestion fallback.
+
+## Where to start
+
+- Local runtime setup: [`docs/operations/local-setup.md`](docs/operations/local-setup.md)
+- Manual Fivetran setup runbook: [`docs/operations/fivetran-setup.md`](docs/operations/fivetran-setup.md)
+- Proxy Agent guidance: [`docs/operations/proxy-agent.md`](docs/operations/proxy-agent.md)
+- Validation workflow: [`docs/operations/validation.md`](docs/operations/validation.md)
+- Mutation troubleshooting: [`docs/operations/troubleshooting.md`](docs/operations/troubleshooting.md)
 
 ## Quick start
 
@@ -53,17 +64,18 @@ make dbt-profile-setup
 make dbt-deps
 ```
 
-5. Validate parse/compile and raw readiness:
+5. Configure Fivetran and Proxy Agent manually using:
+
+- [`docs/operations/fivetran-setup.md`](docs/operations/fivetran-setup.md)
+- [`docs/operations/proxy-agent.md`](docs/operations/proxy-agent.md)
+
+6. Run readiness and dbt commands:
 
 ```bash
+make dbt-raw-source-readiness
+# when readiness passes after manual sync:
 make dbt-parse
 make dbt-compile
-make dbt-raw-source-readiness
-```
-
-6. If readiness passes after manual Fivetran sync, run dbt transforms/tests:
-
-```bash
 make dbt-run
 make dbt-test
 ```
@@ -76,37 +88,23 @@ Default host ports (overridable in `.env`):
 - ERP: `localhost:5434`
 - Warehouse: `localhost:5435`
 
-## Source and warehouse model locations
-
-Business SQL is committed and ordered by filename prefix:
-
-- CRM schema: `db/crm/schema/`
-- CRM seed: `db/crm/seed/`
-- ERP schema: `db/erp/schema/`
-- ERP seed: `db/erp/seed/`
-- Warehouse bootstrap: `db/warehouse/bootstrap/` (creates `analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`)
-
-Docker init entrypoints under `infra/docker/init/crm/`, `infra/docker/init/erp/`, and `infra/docker/init/warehouse/` remain thin wrappers that execute committed SQL.
-
 ## Validation
 
-Before running validation locally, create a root `.env` file from the example:
+Before running validation locally, create root `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Run all repository checks:
+Run repository checks:
 
 ```bash
 make validate
 ```
 
-This includes file policy checks, docs checks, and Docker infrastructure checks.
-
-For dbt and raw-readiness validation flow, see [`docs/operations/validation.md`](docs/operations/validation.md).
-
-For Phase 05 mutation simulation and troubleshooting flow, see [`docs/operations/troubleshooting.md`](docs/operations/troubleshooting.md).
+For full operator flow, see:
+- Phase 06 runbook: [`docs/phases/phase-06-operator-runbook.md`](docs/phases/phase-06-operator-runbook.md)
+- Validation workflow: [`docs/operations/validation.md`](docs/operations/validation.md)
 
 ## Repository structure
 

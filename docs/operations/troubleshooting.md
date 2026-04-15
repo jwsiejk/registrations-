@@ -1,33 +1,31 @@
-# Phase 05 Mutation Troubleshooting Runbook
+# Phase 05/06 Mutation Troubleshooting Runbook
 
-This runbook documents controlled, source-side mutation scenarios used to discuss incremental sync behavior, schema drift, late-arriving data, and data-quality troubleshooting.
+This runbook documents controlled, source-side mutation scenarios and the required manual re-sync expectations for downstream validation.
 
 ## Guardrails
 
 - Mutations are source-side only (`postgres-crm` and `postgres-erp`).
 - Warehouse raw schemas are never mutated directly in this repo.
 - Manual Fivetran actions remain manual by design.
-- Mutation SQL is deterministic (fixed IDs/timestamps/values) and committed under `db/*/mutate`.
+- No fake ingestion path exists in this repository.
 
 ## Preconditions
 
-1. Create environment file:
+```bash
+cp .env.example .env
+make docker-up
+make mutate-list
+```
 
-   ```bash
-   cp .env.example .env
-   ```
+## Manual re-sync expectation (critical)
 
-2. Start containers:
+After **any** source mutation, downstream warehouse/dbt impact is not expected until manual sync runs for the affected connector(s).
 
-   ```bash
-   make docker-up
-   ```
+- CRM mutation -> manual CRM connector sync
+- ERP mutation -> manual ERP connector sync
+- Mixed scenario -> sync both as needed
 
-3. List available scenarios:
-
-   ```bash
-   make mutate-list
-   ```
+If sync has not yet completed, `make dbt-raw-source-readiness` may still fail or downstream dbt outputs may still reflect old raw data.
 
 ## Mutation runner
 
@@ -39,127 +37,48 @@ Usage:
 bash infra/docker/scripts/apply-mutation <crm|erp> <mutation-file.sql>
 ```
 
-The script fails clearly when `.env` is missing, the target container is unavailable, the mutation file does not exist, or SQL execution fails.
+The script fails clearly when `.env` is missing, target container is unavailable, mutation file is missing, or SQL execution fails.
 
-### Script reference: `infra/docker/scripts/apply-mutation`
-- **Purpose:** Apply one deterministic CRM or ERP source-side mutation SQL file to a running source container.
-- **Inputs/Arguments:** `<crm|erp> <mutation-file.sql>`.
-- **Exit behavior:**
-  - `0` when the mutation SQL is executed successfully.
-  - `1` when arguments are invalid, `.env` is missing, container is unavailable/not running, mutation file is missing, or SQL execution fails.
-- **Example usage:** `bash infra/docker/scripts/apply-mutation crm 010_new_opportunity.sql`
+## Scenario catalog
 
-## CRM mutation scenarios
+### CRM scenarios
 
-### 1) New opportunity
-- SQL: `db/crm/mutate/010_new_opportunity.sql`
-- Command:
+1. `make mutate-crm-new-opportunity`
+   - SQL: `db/crm/mutate/010_new_opportunity.sql`
+   - Adds deterministic open opportunity `3091` and history `4091`
+   - Next manual action: re-sync CRM connector
 
-  ```bash
-  make mutate-crm-new-opportunity
-  ```
+2. `make mutate-crm-stage-progression`
+   - SQL: `db/crm/mutate/020_stage_progression.sql`
+   - Advances opportunity `3014` to `proposal` and adds history `4092`
+   - Next manual action: re-sync CRM connector
 
-- Source change:
-  - Inserts `opportunities.opportunity_id = 3091` for account `1008` and contact `2015`
-  - Inserts history row `opportunity_history_id = 4091`
-- Dependency: none.
-- Manual Fivetran next step: run CRM connector sync manually.
-- Expected downstream impact after manual sync + dbt run:
-  - New open pipeline row appears for customer `CUST-1008`.
+3. `make mutate-crm-schema-drift`
+   - SQL: `db/crm/mutate/030_schema_change_customer_priority.sql`
+   - Adds nullable `accounts.customer_priority` and deterministic values
+   - Next manual action: re-sync CRM connector; perform schema accept/reload actions manually if required by your Fivetran setup
 
-### 2) Stage progression
-- SQL: `db/crm/mutate/020_stage_progression.sql`
-- Command:
+### ERP scenarios
 
-  ```bash
-  make mutate-crm-stage-progression
-  ```
+4. `make mutate-erp-new-order`
+   - SQL: `db/erp/mutate/010_new_order.sql`
+   - Adds deterministic order `7091` and line items `8091`, `8092` with no invoice
+   - Next manual action: re-sync ERP connector
 
-- Source change:
-  - Advances `opportunity_id = 3014` from `qualification` to `proposal`
-  - Updates `updated_at`
-  - Inserts deterministic history row `opportunity_history_id = 4092`
-- Dependency: none.
-- Manual Fivetran next step: run CRM connector sync manually.
-- Expected downstream impact after manual sync + dbt run:
-  - `fct_pipeline` reflects stage `proposal`; stage-change metrics advance.
+5. `make mutate-erp-late-invoice`
+   - SQL: `db/erp/mutate/020_late_arriving_invoice.sql`
+   - Adds late invoice `9091` for order `7091`
+   - Dependency: scenario 4 must run first
+   - Next manual action: re-sync ERP connector
 
-### 3) Additive schema drift
-- SQL: `db/crm/mutate/030_schema_change_customer_priority.sql`
-- Command:
+6. `make mutate-erp-data-quality-edge`
+   - SQL: `db/erp/mutate/030_data_quality_invoice_mismatch.sql`
+   - Adds deterministic invoice mismatch case (`7092`/`9092`)
+   - Next manual action: re-sync ERP connector
 
-  ```bash
-  make mutate-crm-schema-drift
-  ```
+## Post-sync validation sequence
 
-- Source change:
-  - Adds nullable `accounts.customer_priority`
-  - Populates deterministic values for accounts `1001`, `1003`, `1008`
-- Dependency: none.
-- Manual Fivetran next step: run CRM connector sync manually (and perform connector schema refresh if your Fivetran setup requires explicit schema acceptance).
-- Expected downstream impact after manual sync + dbt updates:
-  - New raw column becomes available in `fivetran_crm.accounts`; dbt models can be extended intentionally in later changes.
-
-## ERP mutation scenarios
-
-### 4) New order (no invoice)
-- SQL: `db/erp/mutate/010_new_order.sql`
-- Command:
-
-  ```bash
-  make mutate-erp-new-order
-  ```
-
-- Source change:
-  - Inserts `orders.order_id = 7091` for active customer `5008`
-  - Inserts line items `order_item_id = 8091`, `8092`
-  - Leaves invoice absent for late-arriving invoice simulation
-- Dependency: none.
-- Manual Fivetran next step: run ERP connector sync manually.
-- Expected downstream impact after manual sync + dbt run:
-  - `fct_orders` includes a new order with null invoice fields until invoice arrives.
-
-### 5) Late-arriving invoice
-- SQL: `db/erp/mutate/020_late_arriving_invoice.sql`
-- Command:
-
-  ```bash
-  make mutate-erp-late-invoice
-  ```
-
-- Source change:
-  - Inserts late invoice `invoice_id = 9091` for `order_id = 7091`
-- Dependency:
-  - Requires scenario 4 (`make mutate-erp-new-order`) first; SQL fails clearly if `order_id = 7091` is missing.
-- Manual Fivetran next step: run ERP connector sync manually.
-- Expected downstream impact after manual sync + dbt run:
-  - Existing order `7091` gains invoice fields in marts.
-
-### 6) Controlled data-quality edge case
-- SQL: `db/erp/mutate/030_data_quality_invoice_mismatch.sql`
-- Command:
-
-  ```bash
-  make mutate-erp-data-quality-edge
-  ```
-
-- Source change:
-  - Inserts `orders.order_id = 7092` for active customer `5005`
-  - Inserts line items `order_item_id = 8093`, `8094`
-  - Inserts invoice `invoice_id = 9092`
-  - Intentionally sets invoice total to differ slightly from summed line amount
-- Dependency: none.
-- Manual Fivetran next step: run ERP connector sync manually.
-- Expected downstream impact after manual sync + dbt run:
-  - `fct_orders` exposes deterministic mismatch useful for troubleshooting/tests.
-
-## Manual Fivetran step (always required)
-
-After applying any mutation scenario:
-1. Open your Fivetran account.
-2. Trigger manual sync for affected connector(s): CRM and/or ERP.
-3. Wait for sync completion.
-4. Re-run readiness and dbt checks as appropriate:
+After manual sync completion:
 
 ```bash
 make dbt-raw-source-readiness
@@ -167,17 +86,23 @@ make dbt-run
 make dbt-test
 ```
 
-If manual sync has not occurred, downstream warehouse/dbt validation remains intentionally blocked.
+## Reset/reseed behavior
 
-## Return to baseline
-
-Use source reseed to remove mutation effects from CRM/ERP:
+To restore source baseline:
 
 ```bash
 make docker-reseed-sources
 ```
 
 Important:
-- This resets CRM and ERP only.
+- Reseed resets CRM/ERP sources only.
 - Warehouse is not reset by source reseed.
-- To align warehouse raw state with reset sources, manually re-sync Fivetran after reseed.
+- Manual re-sync is required to realign warehouse raw state with reseeded sources.
+
+For full destructive reset + fresh volume bootstrap, use guidance in [`reset-reseed.md`](./reset-reseed.md).
+
+## Related docs
+
+- Manual setup flow: [`fivetran-setup.md`](./fivetran-setup.md)
+- Proxy Agent guidance: [`proxy-agent.md`](./proxy-agent.md)
+- Validation workflow: [`validation.md`](./validation.md)
