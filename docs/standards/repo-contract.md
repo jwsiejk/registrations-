@@ -38,7 +38,10 @@ This contract defines **mandatory rules** for contributors. These rules are acti
   - inputs/arguments
   - exit behavior
   - example usage
-- Script documentation location: [`../operations/validation-tools.md`](../operations/validation-tools.md)
+- Script documentation must live in the operations runbook that matches script type:
+  - Validation scripts (`tools/validate/*`) in [`../operations/validation-tools.md`](../operations/validation-tools.md)
+  - Docker runtime scripts (`infra/docker/scripts/up`, `down`, `status`) in [`../operations/local-setup.md`](../operations/local-setup.md)
+  - Docker reset/reseed scripts (`infra/docker/scripts/reset`, `reseed-*`) in [`../operations/reset-reseed.md`](../operations/reset-reseed.md)
 
 ## 7) Naming convention
 - Names must be explicit and readable.

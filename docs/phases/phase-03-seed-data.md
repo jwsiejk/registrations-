@@ -46,6 +46,7 @@ Add repeatable, deterministic source schemas and seed data for local ELT experim
     - Added `docs/operations/reset-reseed.md`
     - Updated README and operations/architecture indexes
     - Updated `tools/validate/check_required_docs.py` required docs list
+11. Final Phase 03 cleanup aligned repository contract wording, validation script documentation, and operations runbooks with committed Docker runtime/reset/reseed script behavior.
 
 ## Validation performed
 
