@@ -8,5 +8,7 @@ local_elt_lab:
       user: "{{ env_var('DBT_WAREHOUSE_USER', 'warehouse_user') }}"
       password: "{{ env_var('DBT_WAREHOUSE_PASSWORD', 'warehouse_password') }}"
       dbname: "{{ env_var('DBT_WAREHOUSE_DB', 'warehouse') }}"
+      # Kept as the default schema for non-model dbt objects. Model schema
+      # resolution is explicitly controlled by macros/generate_schema_name.sql.
       schema: "analytics"
       threads: 4

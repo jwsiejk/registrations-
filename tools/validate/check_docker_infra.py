@@ -22,13 +22,13 @@ REQUIRED_FILES = [
     "infra/docker/scripts/bootstrap-warehouse",
     "infra/docker/init/crm/010-bootstrap.sh",
     "infra/docker/init/erp/010-bootstrap.sh",
+    "infra/docker/init/warehouse/010-bootstrap.sh",
 ]
 
 REQUIRED_DIRECTORIES = [
     "infra/docker/init/crm",
     "infra/docker/init/erp",
     "infra/docker/init/warehouse",
-    "db/warehouse/bootstrap",
     "db/crm/schema",
     "db/crm/seed",
     "db/erp/schema",
@@ -69,7 +69,7 @@ def check_required_sql_files(root: Path) -> bool:
             missing_sql.append(directory)
 
     if missing_sql:
-        print("FAIL: Required source SQL directories must each contain at least one .sql file:")
+        print("FAIL: Required Phase 4 SQL directories must each contain at least one .sql file:")
         for directory in missing_sql:
             print(f"  - {directory}")
         return False
@@ -125,7 +125,7 @@ def main() -> int:
     if not check_compose_config(root):
         return 1
 
-    print("PASS: Docker infrastructure files/directories are present, source SQL directories are populated, and compose config is valid.")
+    print("PASS: Phase 4 Docker infrastructure checks passed (required files/dirs, populated SQL directories, and valid compose config).")
     return 0
 
 

@@ -15,6 +15,8 @@ Phase 01 through Phase 04 are in place:
 - Source-only reseed flow for CRM/ERP without resetting warehouse state
 - Warehouse bootstrap for analytics schemas (`db/warehouse/bootstrap`)
 - dbt Core transformation project under `analytics/dbt`
+- Explicit dbt schema routing to exact layer schemas (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+- Pinned and aligned dbt packages: `dbt-core==1.10.13`, `dbt-postgres==1.10.13`
 - Explicit raw-source readiness check for expected Fivetran destination schemas:
   - `fivetran_crm`
   - `fivetran_erp`
@@ -80,7 +82,7 @@ Business SQL is committed and ordered by filename prefix:
 - CRM seed: `db/crm/seed/`
 - ERP schema: `db/erp/schema/`
 - ERP seed: `db/erp/seed/`
-- Warehouse bootstrap: `db/warehouse/bootstrap/`
+- Warehouse bootstrap: `db/warehouse/bootstrap/` (creates `analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`)
 
 Docker init entrypoints under `infra/docker/init/crm/`, `infra/docker/init/erp/`, and `infra/docker/init/warehouse/` remain thin wrappers that execute committed SQL.
 

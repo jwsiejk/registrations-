@@ -46,7 +46,7 @@ For fresh volumes, Postgres entrypoint runs mounted init scripts once per new vo
   - Applies `db/erp/schema/*.sql` then `db/erp/seed/*.sql`
 - Warehouse: `infra/docker/init/warehouse/010-bootstrap.sh`
   - Applies `db/warehouse/bootstrap/*.sql`
-  - Creates analytics-side schemas only (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+  - Creates analytics schemas used by dbt (`analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`)
 
 Warehouse bootstrap does not create Fivetran raw tables.
 
@@ -93,6 +93,32 @@ make docker-reset
 This removes containers and named volumes.
 
 ## Runtime script reference
+
+### Docker init bootstrap scripts
+
+### `infra/docker/init/crm/010-bootstrap.sh`
+- **Purpose:** Initialize CRM database on fresh volume by applying committed CRM schema and seed SQL.
+- **Inputs/Arguments:** No CLI arguments. Reads `/opt/bootstrap/crm/schema/*.sql` then `/opt/bootstrap/crm/seed/*.sql` inside the container.
+- **Exit behavior:**
+  - `0` when all CRM SQL files apply successfully
+  - non-zero when any SQL file fails (`set -euo pipefail` + `ON_ERROR_STOP=1`)
+- **Example:** Runs automatically via Postgres entrypoint on first container start with fresh CRM volume.
+
+### `infra/docker/init/erp/010-bootstrap.sh`
+- **Purpose:** Initialize ERP database on fresh volume by applying committed ERP schema and seed SQL.
+- **Inputs/Arguments:** No CLI arguments. Reads `/opt/bootstrap/erp/schema/*.sql` then `/opt/bootstrap/erp/seed/*.sql` inside the container.
+- **Exit behavior:**
+  - `0` when all ERP SQL files apply successfully
+  - non-zero when any SQL file fails (`set -euo pipefail` + `ON_ERROR_STOP=1`)
+- **Example:** Runs automatically via Postgres entrypoint on first container start with fresh ERP volume.
+
+### `infra/docker/init/warehouse/010-bootstrap.sh`
+- **Purpose:** Initialize warehouse database on fresh volume by applying committed warehouse bootstrap SQL.
+- **Inputs/Arguments:** No CLI arguments. Reads `/opt/bootstrap/warehouse/bootstrap/*.sql` inside the container.
+- **Exit behavior:**
+  - `0` when all warehouse bootstrap SQL files apply successfully
+  - non-zero when any SQL file fails (`set -euo pipefail` + `ON_ERROR_STOP=1`)
+- **Example:** Runs automatically via Postgres entrypoint on first container start with fresh warehouse volume.
 
 ### `infra/docker/scripts/up`
 - **Purpose:** Start local Postgres services and wait until all configured services report `healthy`.
