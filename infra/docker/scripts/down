@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMPOSE_FILE="infra/docker/compose.yaml"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+COMPOSE_FILE="$ROOT_DIR/infra/docker/compose.yaml"
+ENV_FILE="$ROOT_DIR/.env"
 
-docker compose -f "$COMPOSE_FILE" down --remove-orphans
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "ERROR: Required environment file is missing: $ENV_FILE"
+  echo "Create it from the template first: cp .env.example .env"
+  exit 1
+fi
+
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down --remove-orphans

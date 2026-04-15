@@ -22,11 +22,15 @@ Business schemas, seed data, and transformation logic are intentionally deferred
 cp .env.example .env
 ```
 
+The root `.env` file is required by Docker helper scripts and is passed explicitly to Compose via `--env-file`.
+
 2. Start local databases:
 
 ```bash
 make docker-up
 ```
+
+`make docker-up` returns success only after all three Postgres services report healthy.
 
 3. Check service state:
 
@@ -58,7 +62,7 @@ Run all repository checks:
 make validate
 ```
 
-This includes file policy checks, docs checks, and Docker infrastructure existence checks.
+This includes file policy checks, docs checks, and Docker infrastructure checks for required paths plus Compose config validation.
 
 ## Repository structure
 
