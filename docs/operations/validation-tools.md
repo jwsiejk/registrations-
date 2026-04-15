@@ -30,11 +30,16 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
   - `python3 tools/validate/check_required_top_level.py`
 
 ## `check_docs_index.py`
-- **Purpose:** Ensure key files linked from `docs/README.md` exist.
+- **Purpose:** Validate all local markdown link targets defined in `docs/README.md`.
 - **Inputs/Arguments:** None.
 - **Exit behavior:**
-  - `0` when all required docs index targets are present
-  - `1` when one or more docs index targets are missing
+  - `0` when every local link target in `docs/README.md` exists
+  - `1` when one or more local link targets are missing
+- **Notes:**
+  - Parses markdown links directly from `docs/README.md`.
+  - Resolves relative paths from the directory containing `docs/README.md`.
+  - Ignores external URLs, `mailto:` links, and anchor-only links.
+  - For links with fragments (for example `./file.md#section`), validates only the file path portion.
 - **Example:**
   - `python3 tools/validate/check_docs_index.py`
 
