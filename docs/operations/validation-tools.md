@@ -29,6 +29,15 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 - **Example:**
   - `python3 tools/validate/check_required_top_level.py`
 
+## `check_docs_index.py`
+- **Purpose:** Ensure key files linked from `docs/README.md` exist.
+- **Inputs/Arguments:** None.
+- **Exit behavior:**
+  - `0` when all required docs index targets are present
+  - `1` when one or more docs index targets are missing
+- **Example:**
+  - `python3 tools/validate/check_docs_index.py`
+
 ## `run_all.sh`
 - **Purpose:** Run all validation checks in a single command.
 - **Inputs/Arguments:** None.

@@ -38,9 +38,10 @@ Automated enforcement (for this phase) runs via scripts in [`tools/validate/`](t
 - `check_file_length.py`
 - `check_required_docs.py`
 - `check_required_top_level.py`
+- `check_docs_index.py`
 - `run_all.sh`
 
-CI executes these checks on pull requests and pushes.
+CI executes these checks on pull requests and pushes to `main`.
 
 ## Quick start
 Run all current validation checks locally:
@@ -55,6 +56,7 @@ Or run scripts directly:
 python3 tools/validate/check_file_length.py
 python3 tools/validate/check_required_docs.py
 python3 tools/validate/check_required_top_level.py
+python3 tools/validate/check_docs_index.py
 ```
 
 ## Repository structure

@@ -3,6 +3,15 @@
 ## Status
 Completed (repository foundation only).
 
+## Phase 01 follow-up hardening
+A small follow-up was applied after Phase 01 merge to tighten enforcement without starting Phase 02 runtime work:
+
+- `.gitignore` is now included in file-length validation coverage.
+- Required top-level file validation now also requires `docs/README.md`.
+- A docs index validator was added to ensure key links in `docs/README.md` resolve to existing files.
+- Local and CI validation entry points now include the docs index validator.
+- CI trigger branches were simplified to `main` for push events.
+
 ## Summary of what was added
 This phase added the following:
 
