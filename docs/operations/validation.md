@@ -67,3 +67,14 @@ make dbt-test
 Interpretation guidance:
 - If readiness fails, `dbt run`/`dbt test` are correctly blocked by missing upstream raw tables.
 - Do not fabricate raw data and do not claim `dbt run`/`dbt test` passed without actual successful command output.
+
+
+## 6) Phase 05 source-mutation validation boundary
+
+Phase 05 mutation scenarios are applied only to source systems (`postgres-crm`, `postgres-erp`).
+
+- Apply and verify source-side mutations using `make mutate-*` targets and direct SQL checks.
+- Then run manual Fivetran sync in your own account before expecting downstream warehouse/dbt changes.
+- Do not claim downstream dbt mutation effects unless manual sync has completed and command output proves it.
+
+Mutation runbook: [`troubleshooting.md`](./troubleshooting.md).

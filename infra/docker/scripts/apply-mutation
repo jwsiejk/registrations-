@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+COMPOSE_FILE="$ROOT_DIR/infra/docker/compose.yaml"
+ENV_FILE="$ROOT_DIR/.env"
+
+usage() {
+  echo "Usage: bash infra/docker/scripts/apply-mutation <crm|erp> <mutation-file.sql>"
+  echo "Example: bash infra/docker/scripts/apply-mutation crm 010_new_opportunity.sql"
+}
+
+if [[ $# -ne 2 ]]; then
+  echo "ERROR: Expected 2 arguments."
+  usage
+  exit 1
+fi
+
+SYSTEM="$1"
+MUTATION_FILE="$2"
+
+case "$SYSTEM" in
+  crm)
+    SERVICE="postgres-crm"
+    DB_PATH="db/crm/mutate/$MUTATION_FILE"
+    CONTAINER_SQL_PATH="/opt/bootstrap/crm/mutate/$MUTATION_FILE"
+    ;;
+  erp)
+    SERVICE="postgres-erp"
+    DB_PATH="db/erp/mutate/$MUTATION_FILE"
+    CONTAINER_SQL_PATH="/opt/bootstrap/erp/mutate/$MUTATION_FILE"
+    ;;
+  *)
+    echo "ERROR: Unsupported source system '$SYSTEM'. Allowed values: crm, erp"
+    usage
+    exit 1
+    ;;
+esac
+
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "ERROR: Required environment file is missing: $ENV_FILE"
+  echo "Create it from the template first: cp .env.example .env"
+  exit 1
+fi
+
+if [[ ! -f "$ROOT_DIR/$DB_PATH" ]]; then
+  echo "ERROR: Mutation file does not exist: $ROOT_DIR/$DB_PATH"
+  exit 1
+fi
+
+CONTAINER_ID="$(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps -q "$SERVICE")"
+if [[ -z "$CONTAINER_ID" ]]; then
+  echo "ERROR: Container for service '$SERVICE' is not available. Start services first: make docker-up"
+  exit 1
+fi
+
+if [[ "$(docker inspect --format '{{.State.Running}}' "$CONTAINER_ID")" != "true" ]]; then
+  echo "ERROR: Container '$SERVICE' is not running. Start services first: make docker-up"
+  exit 1
+fi
+
+echo "Applying mutation '$MUTATION_FILE' to '$SYSTEM' source via service '$SERVICE'..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" exec -T "$SERVICE" bash -lc '
+set -euo pipefail
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f "'$CONTAINER_SQL_PATH'"
+'
+
+echo "Mutation applied successfully: $DB_PATH"

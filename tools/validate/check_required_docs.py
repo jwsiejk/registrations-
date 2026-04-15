@@ -15,6 +15,7 @@ REQUIRED_DOCS = [
     "docs/operations/validation-tools.md",
     "docs/operations/local-setup.md",
     "docs/operations/reset-reseed.md",
+    "docs/operations/troubleshooting.md",
     "docs/operations/validation.md",
     "docs/architecture/overview.md",
     "docs/architecture/data-model.md",
