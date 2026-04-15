@@ -4,15 +4,17 @@
 This repository builds a realistic local ELT lab in phases.
 
 ## Current status
-Phase 01 and Phase 02 foundations are now in place:
+Phase 01, Phase 02, and Phase 03 are in place:
 
 - Repository standards, contracts, and validation tooling
 - Local Docker runtime with three PostgreSQL databases:
   - `postgres-crm`
   - `postgres-erp`
   - `postgres-warehouse`
+- Realistic CRM and ERP source schemas with deterministic seed data
+- Source-only reseed flow for CRM/ERP without resetting warehouse state
 
-Business schemas, seed data, and transformation logic are intentionally deferred to later phases.
+Phase 04+ work (warehouse modeling, dbt, mutation/re-sync) is intentionally out of scope in current state.
 
 ## Quick start
 
@@ -38,13 +40,19 @@ make docker-up
 make docker-status
 ```
 
-4. Stop services:
+4. (Optional) Reseed CRM + ERP source systems on running containers:
+
+```bash
+make docker-reseed-sources
+```
+
+5. Stop services:
 
 ```bash
 make docker-down
 ```
 
-For full operations guidance, see [`docs/operations/local-setup.md`](docs/operations/local-setup.md).
+For full operations guidance, see [`docs/operations/local-setup.md`](docs/operations/local-setup.md) and [`docs/operations/reset-reseed.md`](docs/operations/reset-reseed.md).
 
 ## Local database ports
 
@@ -53,6 +61,17 @@ Default host ports (overridable in `.env`):
 - CRM: `localhost:5433`
 - ERP: `localhost:5434`
 - Warehouse: `localhost:5435`
+
+## Source model locations
+
+Business SQL for source systems is committed and ordered by filename prefix:
+
+- CRM schema: `db/crm/schema/`
+- CRM seed: `db/crm/seed/`
+- ERP schema: `db/erp/schema/`
+- ERP seed: `db/erp/seed/`
+
+Docker init entrypoints under `infra/docker/init/crm/` and `infra/docker/init/erp/` remain thin wrappers that execute these SQL files.
 
 ## Validation
 
@@ -77,6 +96,9 @@ This includes file policy checks, docs checks, and Docker infrastructure checks 
 
 ```text
 .
+├── db/
+│   ├── crm/
+│   └── erp/
 ├── docs/
 ├── infra/docker/
 ├── tools/validate/

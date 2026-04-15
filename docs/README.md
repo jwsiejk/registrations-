@@ -3,9 +3,11 @@
 - Architecture:
   - [`architecture/README.md`](./architecture/README.md)
   - [`architecture/overview.md`](./architecture/overview.md)
+  - [`architecture/data-model.md`](./architecture/data-model.md)
 - Operations:
   - [`operations/validation-tools.md`](./operations/validation-tools.md)
   - [`operations/local-setup.md`](./operations/local-setup.md)
+  - [`operations/reset-reseed.md`](./operations/reset-reseed.md)
 - Standards:
   - [`standards/repo-contract.md`](./standards/repo-contract.md)
   - [`standards/documentation-standard.md`](./standards/documentation-standard.md)

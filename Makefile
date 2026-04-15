@@ -1,4 +1,4 @@
-.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra docker-up docker-down docker-status docker-reset
+.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra docker-up docker-down docker-status docker-reset docker-reseed-sources docker-reseed-crm docker-reseed-erp
 
 help:
 	@echo "Available targets:"
@@ -12,6 +12,9 @@ help:
 	@echo "  make docker-down                 # Stop local Postgres services"
 	@echo "  make docker-status               # Show local Postgres service status"
 	@echo "  make docker-reset                # Remove containers and named volumes"
+	@echo "  make docker-reseed-sources       # Rebuild CRM+ERP schema/data on running containers"
+	@echo "  make docker-reseed-crm           # Rebuild CRM schema/data on running container"
+	@echo "  make docker-reseed-erp           # Rebuild ERP schema/data on running container"
 
 validate:
 	bash tools/validate/run_all.sh
@@ -42,3 +45,12 @@ docker-status:
 
 docker-reset:
 	bash infra/docker/scripts/reset
+
+docker-reseed-sources:
+	bash infra/docker/scripts/reseed-sources
+
+docker-reseed-crm:
+	bash infra/docker/scripts/reseed-crm
+
+docker-reseed-erp:
+	bash infra/docker/scripts/reseed-erp

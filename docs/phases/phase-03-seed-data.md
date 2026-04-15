@@ -1,12 +1,62 @@
 # Phase 03 - Seed Data
 
 ## Status
-Planned.
+Completed.
 
 ## Intent
-Add repeatable seed data setup for local ELT experiments.
+Add repeatable, deterministic source schemas and seed data for local ELT experiments.
 
-## Guardrails
-- Document data sources and generation method.
-- Keep scripts documented under operations docs.
-- Update README if user-facing setup changes.
+## What changed in this phase
+
+1. Added committed business SQL with explicit execution ordering:
+   - CRM schema: `db/crm/schema/*.sql`
+   - CRM seed: `db/crm/seed/*.sql`
+   - ERP schema: `db/erp/schema/*.sql`
+   - ERP seed: `db/erp/seed/*.sql`
+2. Added realistic CRM source model tables:
+   - `accounts`
+   - `contacts`
+   - `opportunities`
+   - `opportunity_history`
+3. Added realistic ERP source model tables:
+   - `customers`
+   - `products`
+   - `orders`
+   - `order_items`
+   - `invoices`
+4. Added relational constraints (PK/FK/check constraints) and mutable timestamps (`created_at`, `updated_at`) on operational tables.
+5. Added deterministic, enterprise-style seed data with mixed business states:
+   - Active/inactive customers/accounts
+   - Open and closed opportunities
+   - Booked/shipped/completed/cancelled orders
+   - Open and paid invoices
+6. Added stable cross-system bridge key:
+   - `customer_external_id` shared across CRM `accounts` and ERP `customers`
+7. Kept Docker init directories as thin entrypoints and wired them to execute SQL from `db/...`.
+8. Added source-only reseed scripts for running environments:
+   - `infra/docker/scripts/reseed-crm`
+   - `infra/docker/scripts/reseed-erp`
+   - `infra/docker/scripts/reseed-sources`
+9. Added Make targets for reseed operations:
+   - `docker-reseed-crm`
+   - `docker-reseed-erp`
+   - `docker-reseed-sources`
+10. Added/updated docs for data model and operations:
+    - Added `docs/architecture/data-model.md`
+    - Added `docs/operations/reset-reseed.md`
+    - Updated README and operations/architecture indexes
+    - Updated `tools/validate/check_required_docs.py` required docs list
+
+## Validation performed
+
+- Repository validation via `make validate`
+- Fresh bootstrap validation via `make docker-reset` then `make docker-up`
+- Source-only reseed validation via `make docker-reseed-sources`
+- Direct SQL verification for table existence and representative row counts on CRM and ERP
+
+## Explicitly out of scope
+
+- Warehouse bootstrap schema/data
+- dbt modeling
+- mutation/re-sync automation
+- any Fivetran account automation

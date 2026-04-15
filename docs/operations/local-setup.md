@@ -41,12 +41,23 @@ Equivalent direct command:
 bash infra/docker/scripts/up
 ```
 
-`docker-up` now waits until all three services report `healthy`:
+`docker-up` waits until all three services report `healthy`:
 - `postgres-crm`
 - `postgres-erp`
 - `postgres-warehouse`
 
 If services do not become healthy before the timeout, the script exits non-zero and prints compose status.
+
+## Bootstrap behavior on fresh volumes
+
+On first initialization of CRM and ERP volumes, Docker entrypoint init scripts execute ordered SQL from:
+
+- `db/crm/schema/*.sql`
+- `db/crm/seed/*.sql`
+- `db/erp/schema/*.sql`
+- `db/erp/seed/*.sql`
+
+Warehouse remains runtime-only in this phase (no warehouse business bootstrap).
 
 ## Check status and health
 
@@ -61,6 +72,16 @@ docker compose --env-file .env -f infra/docker/compose.yaml ps
 ```
 
 Expected health state for each service: `healthy`.
+
+## Reseed source systems (non-destructive to warehouse)
+
+```bash
+make docker-reseed-sources
+```
+
+This rebuilds CRM and ERP schemas/data on running containers and does not reset warehouse data.
+
+See [`reset-reseed.md`](./reset-reseed.md) for full reset/reseed guidance.
 
 ## Stop environment
 
@@ -95,14 +116,6 @@ Default host-to-container mappings:
 - `localhost:5433 -> postgres-crm:5432`
 - `localhost:5434 -> postgres-erp:5432`
 - `localhost:5435 -> postgres-warehouse:5432`
-
-## Init SQL mount points for later phases
-
-- `infra/docker/init/crm`
-- `infra/docker/init/erp`
-- `infra/docker/init/warehouse`
-
-Any `.sql` files placed in these directories will run at first database initialization (new volume).
 
 ## Validation prerequisite (local and CI alignment)
 
