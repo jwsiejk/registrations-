@@ -22,6 +22,7 @@ This document explains exactly how to start and stop the local runtime environme
 
 The root `.env` file is required by all Docker helper scripts.
 Scripts call Docker Compose with `--env-file .env` explicitly; they do not rely on implicit env-file discovery.
+The same root `.env` is also required by Docker infra validation (`tools/validate/check_docker_infra.py`), which is included in `make validate`.
 
 Service credentials/databases are defined in:
 - `infra/docker/compose/postgres-crm.env`
@@ -102,3 +103,13 @@ Default host-to-container mappings:
 - `infra/docker/init/warehouse`
 
 Any `.sql` files placed in these directories will run at first database initialization (new volume).
+
+## Validation prerequisite (local and CI alignment)
+
+Before running either `python3 tools/validate/check_docker_infra.py` or full `make validate`, ensure root `.env` exists:
+
+```bash
+cp .env.example .env
+```
+
+CI uses the same approach and creates `.env` from `.env.example` before running `bash tools/validate/run_all.sh`.

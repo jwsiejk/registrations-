@@ -56,6 +56,15 @@ Default host ports (overridable in `.env`):
 
 ## Validation
 
+Before running validation locally, create a root `.env` file from the example:
+
+```bash
+cp .env.example .env
+```
+
+`make validate` runs Docker infrastructure validation, and `check_docker_infra.py` requires this root `.env`.
+CI follows the same prerequisite by creating `.env` from `.env.example` before running validation.
+
 Run all repository checks:
 
 ```bash
