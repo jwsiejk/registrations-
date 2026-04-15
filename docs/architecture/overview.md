@@ -32,7 +32,7 @@ No alternate source-to-warehouse copy path is implemented in this repository.
 - **Warehouse bootstrap:**
   - Thin init script in `infra/docker/init/warehouse/010-bootstrap.sh`
   - Business SQL in `db/warehouse/bootstrap/`
-  - Creates analytics-side schemas only (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+  - Creates analytics-side schemas (`analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`)
 - **dbt transformation layer:**
   - Project at `analytics/dbt/`
   - Source definitions target expected Fivetran destination schemas:
@@ -54,6 +54,6 @@ No alternate source-to-warehouse copy path is implemented in this repository.
 
 Phase 05 adds deterministic source-side mutation assets under `db/crm/mutate/` and `db/erp/mutate/`, executed by `infra/docker/scripts/apply-mutation` and explicit `make mutate-*` targets.
 
-These scenarios are intentionally limited to source systems and preserve the design goal:
+These scenarios are intentionally limited to source systems and preserve the end-to-end design:
 
 `source Postgres -> manual Fivetran sync -> warehouse raw schemas -> dbt -> validation -> mutate -> manual re-sync -> validation`.

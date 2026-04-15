@@ -50,6 +50,13 @@ Introduce controlled, deterministic source-side mutation workflows for increment
    - `docs/standards/repo-contract.md`
    - `tools/validate/check_required_docs.py`
 
+Final Phase 05 cleanup alignment also updated:
+- architecture overview wording
+- testing standard wording
+- explicit mutation-runner script documentation
+- validation-tools wording for Docker infra validator scope
+- Makefile help formatting for mutation targets
+
 ## Mutation scenarios added
 
 - CRM deterministic new open opportunity (`3091`) with initial history (`4091`).
