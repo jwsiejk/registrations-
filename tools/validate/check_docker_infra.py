@@ -69,7 +69,7 @@ def check_required_sql_files(root: Path) -> bool:
             missing_sql.append(directory)
 
     if missing_sql:
-        print("FAIL: Required Phase 4 SQL directories must each contain at least one .sql file:")
+        print("FAIL: Required Docker/bootstrap SQL directories must each contain at least one .sql file:")
         for directory in missing_sql:
             print(f"  - {directory}")
         return False
@@ -125,7 +125,7 @@ def main() -> int:
     if not check_compose_config(root):
         return 1
 
-    print("PASS: Phase 4 Docker infrastructure checks passed (required files/dirs, populated SQL directories, and valid compose config).")
+    print("PASS: Docker infrastructure checks passed (required files/dirs, populated bootstrap SQL directories, and valid compose config).")
     return 0
 
 

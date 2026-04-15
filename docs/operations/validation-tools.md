@@ -40,8 +40,8 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 - **Prerequisite:** Root `.env` must exist.
 - **What it validates:**
   - Required Docker files (compose, env files, helper scripts, and all init/bootstrap scripts including warehouse init)
-  - Required init and SQL directories (`db/crm`, `db/erp`, `db/warehouse/bootstrap`)
-  - Each required Phase 4 SQL directory contains at least one `.sql` file
+  - Required init directories and SQL directories (`db/crm/schema`, `db/crm/seed`, `db/erp/schema`, `db/erp/seed`, `db/warehouse/bootstrap`)
+  - Each required SQL directory contains at least one `.sql` file
   - Root `.env` exists
   - `docker compose ... config` succeeds
 - **Exit behavior:**
