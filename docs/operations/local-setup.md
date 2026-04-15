@@ -50,14 +50,14 @@ If services do not become healthy before the timeout, the script exits non-zero 
 
 ## Bootstrap behavior on fresh volumes
 
-On first initialization of CRM and ERP volumes, Docker entrypoint init scripts execute ordered SQL from:
+For **fresh** CRM/ERP volumes only, bootstrap happens in one flow:
+1. `docker compose up` creates empty `postgres_crm_data` / `postgres_erp_data` volumes.
+2. Postgres image entrypoint runs executable scripts mounted to `/docker-entrypoint-initdb.d`.
+3. Thin init scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`) replay mounted SQL in deterministic order:
+   - CRM: `/opt/bootstrap/crm/schema/*.sql` then `/opt/bootstrap/crm/seed/*.sql` (mounted from `db/crm/...`)
+   - ERP: `/opt/bootstrap/erp/schema/*.sql` then `/opt/bootstrap/erp/seed/*.sql` (mounted from `db/erp/...`)
 
-- `db/crm/schema/*.sql`
-- `db/crm/seed/*.sql`
-- `db/erp/schema/*.sql`
-- `db/erp/seed/*.sql`
-
-Warehouse remains runtime-only in this phase (no warehouse business bootstrap).
+This bootstrap does **not** run on normal restarts of existing volumes. Warehouse remains runtime-only in this phase (no warehouse business bootstrap).
 
 ## Check status and health
 
@@ -137,6 +137,26 @@ bash infra/docker/scripts/reset
   - `1` when `.env` is missing or compose returns an error
 - **Example:**
   - `bash infra/docker/scripts/status`
+
+## Bootstrap init script reference (automatic on first volume initialization)
+
+### `infra/docker/init/crm/010-bootstrap.sh`
+- **Purpose:** CRM first-volume bootstrap entrypoint script that applies committed CRM schema and seed SQL inside the Postgres container.
+- **Inputs/Arguments:** No CLI arguments. Executed automatically by Postgres entrypoint with `POSTGRES_USER`/`POSTGRES_DB`; reads mounted files `/opt/bootstrap/crm/schema/*.sql` and `/opt/bootstrap/crm/seed/*.sql`.
+- **Exit behavior:**
+  - `0` when all CRM schema/seed files replay successfully
+  - non-zero when any SQL file fails (`ON_ERROR_STOP=1`) or required inputs are unavailable
+- **Example usage:**
+  - Automatic only: run `make docker-reset && make docker-up` to create a fresh CRM volume and trigger this script via Postgres initialization.
+
+### `infra/docker/init/erp/010-bootstrap.sh`
+- **Purpose:** ERP first-volume bootstrap entrypoint script that applies committed ERP schema and seed SQL inside the Postgres container.
+- **Inputs/Arguments:** No CLI arguments. Executed automatically by Postgres entrypoint with `POSTGRES_USER`/`POSTGRES_DB`; reads mounted files `/opt/bootstrap/erp/schema/*.sql` and `/opt/bootstrap/erp/seed/*.sql`.
+- **Exit behavior:**
+  - `0` when all ERP schema/seed files replay successfully
+  - non-zero when any SQL file fails (`ON_ERROR_STOP=1`) or required inputs are unavailable
+- **Example usage:**
+  - Automatic only: run `make docker-reset && make docker-up` to create a fresh ERP volume and trigger this script via Postgres initialization.
 
 ## Port reference
 
