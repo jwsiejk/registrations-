@@ -43,6 +43,15 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 - **Example:**
   - `python3 tools/validate/check_docs_index.py`
 
+## `check_docker_infra.py`
+- **Purpose:** Validate required Docker infrastructure files exist for local startup.
+- **Inputs/Arguments:** None.
+- **Exit behavior:**
+  - `0` when compose file, service env files, and docker scripts all exist
+  - `1` when one or more required Docker infrastructure files are missing
+- **Example:**
+  - `python3 tools/validate/check_docker_infra.py`
+
 ## `run_all.sh`
 - **Purpose:** Run all validation checks in a single command.
 - **Inputs/Arguments:** None.

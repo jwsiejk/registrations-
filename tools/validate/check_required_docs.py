@@ -13,6 +13,8 @@ REQUIRED_DOCS = [
     "docs/standards/file-size-policy.md",
     "docs/standards/testing-standard.md",
     "docs/operations/validation-tools.md",
+    "docs/operations/local-setup.md",
+    "docs/architecture/overview.md",
     "docs/phases/phase-01-foundation.md",
     "docs/phases/phase-02-docker-postgres.md",
     "docs/phases/phase-03-seed-data.md",
