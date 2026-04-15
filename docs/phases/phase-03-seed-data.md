@@ -47,6 +47,7 @@ Add repeatable, deterministic source schemas and seed data for local ELT experim
     - Updated README and operations/architecture indexes
     - Updated `tools/validate/check_required_docs.py` required docs list
 11. Final Phase 03 cleanup aligned repository contract wording, validation script documentation, and operations runbooks with committed Docker runtime/reset/reseed script behavior.
+12. Final Phase 03 follow-up explicitly aligned documentation coverage for Docker init/bootstrap scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`) in the repo contract and local setup runbook.
 
 ## Validation performed
 
