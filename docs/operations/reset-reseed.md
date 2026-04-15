@@ -4,11 +4,14 @@ This runbook clarifies when to use first-time bootstrap, source-only reseed, or 
 
 ## First-time bootstrap behavior (fresh volumes)
 
-When CRM/ERP volumes are created for the first time (`make docker-up` after `make docker-reset`):
+When CRM/ERP/warehouse volumes are created for the first time (`make docker-up` after `make docker-reset`):
 
 - `postgres-crm` runs `infra/docker/init/crm/010-bootstrap.sh`
 - `postgres-erp` runs `infra/docker/init/erp/010-bootstrap.sh`
-- Each init script executes ordered business SQL from `db/<system>/schema/` then `db/<system>/seed/`
+- `postgres-warehouse` runs `infra/docker/init/warehouse/010-bootstrap.sh`
+- CRM/ERP init scripts execute ordered business SQL from `db/<system>/schema/` then `db/<system>/seed/`
+- Warehouse init applies `db/warehouse/bootstrap/*.sql` to create dbt analytics schemas (`analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+- Warehouse bootstrap does not create fake Fivetran raw tables
 
 This is automatic and runs once per new volume.
 
@@ -39,7 +42,7 @@ Reseed implementation:
 Use `make docker-reset` when you need a complete lab reset:
 - Removes containers
 - Removes all Compose named volumes (`postgres_crm_data`, `postgres_erp_data`, `postgres_warehouse_data`)
-- Next `make docker-up` triggers first-time bootstrap again
+- Next `make docker-up` triggers fresh-volume bootstrap again for CRM, ERP, and warehouse
 
 Use `make docker-reseed-sources` when you need only source refresh:
 - Faster iteration for source schema/data changes

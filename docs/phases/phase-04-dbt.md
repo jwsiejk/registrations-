@@ -36,6 +36,7 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
    - Tightened Docker infra validation coverage to require warehouse init script and clearer Phase 4 messaging
    - Restored operations/contract script-documentation coverage for warehouse init/bootstrap scripts
    - Added repo-local dbt artifact ignore rules for profile/target/packages/logs
+   - Final Phase 4 wording/docs cleanup aligned validator messaging, validation-tools directory lists, and reset/reseed docs with implemented warehouse fresh-volume bootstrap behavior
 
 ## Validation performed
 
