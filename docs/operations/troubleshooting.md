@@ -31,13 +31,12 @@ If sync has not yet completed, `make dbt-raw-source-readiness` may still fail or
 
 Script: `infra/docker/scripts/apply-mutation`
 
-Usage:
+### Script reference: `infra/docker/scripts/apply-mutation`
 
-```bash
-bash infra/docker/scripts/apply-mutation <crm|erp> <mutation-file.sql>
-```
-
-The script fails clearly when `.env` is missing, target container is unavailable, mutation file is missing, or SQL execution fails.
+- **Purpose:** Apply a deterministic SQL mutation file to a source Postgres container (`crm` or `erp`) so downstream behavior can be validated after a manual connector re-sync.
+- **Inputs/arguments:** `bash infra/docker/scripts/apply-mutation <crm|erp> <mutation-file.sql>` where the SQL file must exist under `db/crm/mutate/` or `db/erp/mutate/` based on the selected system.
+- **Exit behavior:** Exits `0` on successful `psql` execution; exits non-zero with a clear error when argument count/system is invalid, `.env` is missing, mutation file is missing, container is unavailable/not running, or SQL execution fails (`ON_ERROR_STOP=1`).
+- **Example usage:** `bash infra/docker/scripts/apply-mutation crm 010_new_opportunity.sql`
 
 ## Scenario catalog
 

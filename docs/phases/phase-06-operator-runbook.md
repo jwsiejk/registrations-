@@ -32,6 +32,9 @@ Finalize operator-facing documentation so the repository can be used as a real l
 - `docs/phases/phase-06-operator-runbook.md`
 - `tools/validate/check_required_docs.py`
 
+Final cleanup note:
+- Restored explicit contract-compliant script documentation coverage for `infra/docker/scripts/apply-mutation` in `docs/operations/troubleshooting.md` (purpose, inputs/arguments, exit behavior, example usage).
+
 ## Validation performed
 
 - `cp .env.example .env`
