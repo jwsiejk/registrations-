@@ -4,7 +4,7 @@
 This repository builds a realistic local ELT lab in phases.
 
 ## Current status
-Phase 01 through Phase 04 are in place:
+Phase 01 through Phase 05 are in place:
 
 - Repository standards, contracts, and validation tooling
 - Local Docker runtime with three PostgreSQL databases:
@@ -20,6 +20,8 @@ Phase 01 through Phase 04 are in place:
 - Explicit raw-source readiness check for expected Fivetran destination schemas:
   - `fivetran_crm`
   - `fivetran_erp`
+- Controlled, deterministic source-side mutation scenarios for CRM/ERP under `db/*/mutate`
+- Explicit mutation runner and Make targets for per-scenario simulation (`make mutate-list`)
 
 Manual Fivetran setup/sync is still required for raw warehouse tables. This repo does not provide a fake ingestion fallback.
 
@@ -103,6 +105,8 @@ make validate
 This includes file policy checks, docs checks, and Docker infrastructure checks.
 
 For dbt and raw-readiness validation flow, see [`docs/operations/validation.md`](docs/operations/validation.md).
+
+For Phase 05 mutation simulation and troubleshooting flow, see [`docs/operations/troubleshooting.md`](docs/operations/troubleshooting.md).
 
 ## Repository structure
 

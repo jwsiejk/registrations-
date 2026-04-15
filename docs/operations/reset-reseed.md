@@ -37,6 +37,12 @@ Reseed implementation:
 - Replays ordered schema SQL then ordered seed SQL
 - Leaves `postgres-warehouse` untouched
 
+After mutation workflow usage (Phase 05), `make docker-reseed-sources` is the canonical way to restore CRM/ERP back to baseline seed state.
+
+Important warehouse note:
+- `make docker-reseed-sources` does **not** reset warehouse state.
+- If you need warehouse raw schemas/tables to match reseeded sources, run manual Fivetran sync after reseed.
+
 ## When to use `docker-reset` vs `reseed`
 
 Use `make docker-reset` when you need a complete lab reset:

@@ -20,6 +20,7 @@ REQUIRED_FILES = [
     "infra/docker/scripts/reseed-erp",
     "infra/docker/scripts/reseed-sources",
     "infra/docker/scripts/bootstrap-warehouse",
+    "infra/docker/scripts/apply-mutation",
     "infra/docker/init/crm/010-bootstrap.sh",
     "infra/docker/init/erp/010-bootstrap.sh",
     "infra/docker/init/warehouse/010-bootstrap.sh",
@@ -31,16 +32,20 @@ REQUIRED_DIRECTORIES = [
     "infra/docker/init/warehouse",
     "db/crm/schema",
     "db/crm/seed",
+    "db/crm/mutate",
     "db/erp/schema",
     "db/erp/seed",
+    "db/erp/mutate",
     "db/warehouse/bootstrap",
 ]
 
 REQUIRED_SQL_DIRECTORIES = [
     "db/crm/schema",
     "db/crm/seed",
+    "db/crm/mutate",
     "db/erp/schema",
     "db/erp/seed",
+    "db/erp/mutate",
     "db/warehouse/bootstrap",
 ]
 
@@ -69,7 +74,7 @@ def check_required_sql_files(root: Path) -> bool:
             missing_sql.append(directory)
 
     if missing_sql:
-        print("FAIL: Required Docker/bootstrap SQL directories must each contain at least one .sql file:")
+        print("FAIL: Required Docker source/bootstrap SQL directories must each contain at least one .sql file:")
         for directory in missing_sql:
             print(f"  - {directory}")
         return False
@@ -125,7 +130,7 @@ def main() -> int:
     if not check_compose_config(root):
         return 1
 
-    print("PASS: Docker infrastructure checks passed (required files/dirs, populated bootstrap SQL directories, and valid compose config).")
+    print("PASS: Docker infrastructure checks passed (required files/dirs, populated source/bootstrap SQL directories, and valid compose config).")
     return 0
 
 

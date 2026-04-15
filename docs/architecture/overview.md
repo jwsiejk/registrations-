@@ -48,3 +48,12 @@ No alternate source-to-warehouse copy path is implemented in this repository.
 - Manual Fivetran actions (connector setup, sync trigger, account interaction) are out of scope for automation in this repo.
 - dbt `run`/`test` depend on manual Fivetran sync having landed required raw tables in warehouse.
 - Raw-source readiness is checked explicitly with `make dbt-raw-source-readiness`.
+
+
+## Controlled mutation layer (Phase 05)
+
+Phase 05 adds deterministic source-side mutation assets under `db/crm/mutate/` and `db/erp/mutate/`, executed by `infra/docker/scripts/apply-mutation` and explicit `make mutate-*` targets.
+
+These scenarios are intentionally limited to source systems and preserve the design goal:
+
+`source Postgres -> manual Fivetran sync -> warehouse raw schemas -> dbt -> validation -> mutate -> manual re-sync -> validation`.

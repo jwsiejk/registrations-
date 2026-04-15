@@ -1,4 +1,4 @@
-.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra docker-up docker-down docker-status docker-reset docker-reseed-sources docker-reseed-crm docker-reseed-erp warehouse-bootstrap dbt-profile-setup dbt-install-deps dbt-deps dbt-parse dbt-compile dbt-raw-source-readiness dbt-run dbt-test
+.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra docker-up docker-down docker-status docker-reset docker-reseed-sources docker-reseed-crm docker-reseed-erp warehouse-bootstrap mutate-list mutate-crm-new-opportunity mutate-crm-stage-progression mutate-crm-schema-drift mutate-erp-new-order mutate-erp-late-invoice mutate-erp-data-quality-edge dbt-profile-setup dbt-install-deps dbt-deps dbt-parse dbt-compile dbt-raw-source-readiness dbt-run dbt-test
 
 DBT_PROJECT_DIR := analytics/dbt
 DBT_PROFILES_DIR := $(DBT_PROJECT_DIR)/profiles
@@ -22,6 +22,13 @@ help:
 	@echo "  make docker-reseed-crm           # Rebuild CRM schema/data on running container"
 	@echo "  make docker-reseed-erp           # Rebuild ERP schema/data on running container"
 	@echo "  make warehouse-bootstrap         # Apply warehouse bootstrap SQL on running container"
+	@echo "  make mutate-list                 # List available source-side mutation scenarios"
+	@echo "  make mutate-crm-new-opportunity  # Apply CRM mutation: deterministic new opportunity"
+	@echo "  make mutate-crm-stage-progression# Apply CRM mutation: move opportunity 3014 to proposal"
+	@echo "  make mutate-crm-schema-drift     # Apply CRM mutation: additive accounts.customer_priority"
+	@echo "  make mutate-erp-new-order        # Apply ERP mutation: deterministic order 7091 without invoice"
+	@echo "  make mutate-erp-late-invoice     # Apply ERP mutation: late invoice 9091 for order 7091"
+	@echo "  make mutate-erp-data-quality-edge# Apply ERP mutation: controlled invoice mismatch"
 	@echo "  make dbt-profile-setup           # Copy dbt profile template to active profile"
 	@echo "  make dbt-install-deps            # Install pinned dbt dependencies"
 	@echo "  make dbt-deps                    # Install dbt package dependencies"
@@ -72,6 +79,33 @@ docker-reseed-erp:
 
 warehouse-bootstrap:
 	bash infra/docker/scripts/bootstrap-warehouse
+
+mutate-list:
+	@echo "Available mutation targets:"
+	@echo "  make mutate-crm-new-opportunity   # CRM: insert deterministic open opportunity 3091 with history 4091"
+	@echo "  make mutate-crm-stage-progression # CRM: advance opportunity 3014 qualification -> proposal (history 4092)"
+	@echo "  make mutate-crm-schema-drift      # CRM: additive schema drift (accounts.customer_priority)"
+	@echo "  make mutate-erp-new-order         # ERP: insert deterministic booked order 7091 with order items"
+	@echo "  make mutate-erp-late-invoice      # ERP: insert deterministic late invoice 9091 for order 7091"
+	@echo "  make mutate-erp-data-quality-edge # ERP: insert controlled invoice mismatch scenario for order 7092"
+
+mutate-crm-new-opportunity:
+	bash infra/docker/scripts/apply-mutation crm 010_new_opportunity.sql
+
+mutate-crm-stage-progression:
+	bash infra/docker/scripts/apply-mutation crm 020_stage_progression.sql
+
+mutate-crm-schema-drift:
+	bash infra/docker/scripts/apply-mutation crm 030_schema_change_customer_priority.sql
+
+mutate-erp-new-order:
+	bash infra/docker/scripts/apply-mutation erp 010_new_order.sql
+
+mutate-erp-late-invoice:
+	bash infra/docker/scripts/apply-mutation erp 020_late_arriving_invoice.sql
+
+mutate-erp-data-quality-edge:
+	bash infra/docker/scripts/apply-mutation erp 030_data_quality_invoice_mismatch.sql
 
 $(DBT_PROFILE_FILE): $(DBT_PROFILE_TEMPLATE)
 	cp "$(DBT_PROFILE_TEMPLATE)" "$(DBT_PROFILE_FILE)"

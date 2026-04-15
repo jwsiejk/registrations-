@@ -44,6 +44,7 @@ This contract defines **mandatory rules** for contributors. These rules are acti
   - Docker init/bootstrap scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`, `infra/docker/init/warehouse/010-bootstrap.sh`) in [`../operations/local-setup.md`](../operations/local-setup.md)
   - Warehouse runtime bootstrap script (`infra/docker/scripts/bootstrap-warehouse`) in [`../operations/local-setup.md`](../operations/local-setup.md)
   - Docker reset/reseed scripts (`infra/docker/scripts/reset`, `reseed-*`) in [`../operations/reset-reseed.md`](../operations/reset-reseed.md)
+  - Docker mutation script (`infra/docker/scripts/apply-mutation`) in [`../operations/troubleshooting.md`](../operations/troubleshooting.md)
 
 ## 7) Naming convention
 - Names must be explicit and readable.

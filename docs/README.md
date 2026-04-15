@@ -8,6 +8,7 @@
   - [`operations/validation-tools.md`](./operations/validation-tools.md)
   - [`operations/local-setup.md`](./operations/local-setup.md)
   - [`operations/reset-reseed.md`](./operations/reset-reseed.md)
+  - [`operations/troubleshooting.md`](./operations/troubleshooting.md)
   - [`operations/validation.md`](./operations/validation.md)
 - Standards:
   - [`standards/repo-contract.md`](./standards/repo-contract.md)
