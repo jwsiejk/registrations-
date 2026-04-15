@@ -4,9 +4,12 @@
   - [`architecture/README.md`](./architecture/README.md)
   - [`architecture/overview.md`](./architecture/overview.md)
   - [`architecture/data-model.md`](./architecture/data-model.md)
+  - [`architecture/networking.md`](./architecture/networking.md)
 - Operations:
   - [`operations/validation-tools.md`](./operations/validation-tools.md)
   - [`operations/local-setup.md`](./operations/local-setup.md)
+  - [`operations/fivetran-setup.md`](./operations/fivetran-setup.md)
+  - [`operations/proxy-agent.md`](./operations/proxy-agent.md)
   - [`operations/reset-reseed.md`](./operations/reset-reseed.md)
   - [`operations/troubleshooting.md`](./operations/troubleshooting.md)
   - [`operations/validation.md`](./operations/validation.md)
