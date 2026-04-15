@@ -8,7 +8,7 @@ A small follow-up was applied after Phase 01 merge to tighten enforcement withou
 
 - `.gitignore` is now included in file-length validation coverage.
 - Required top-level file validation now also requires `docs/README.md`.
-- A docs index validator was added to ensure key links in `docs/README.md` resolve to existing files.
+- A docs index validator was added to parse local markdown links in `docs/README.md` and ensure referenced targets resolve locally.
 - Local and CI validation entry points now include the docs index validator.
 - CI trigger branches were simplified to `main` for push events.
 
