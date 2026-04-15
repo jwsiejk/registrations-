@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Prepare root .env for validation
+        run: cp .env.example .env
+
       - name: Run validation checks
         run: |
           bash tools/validate/run_all.sh

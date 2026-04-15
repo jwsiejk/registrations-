@@ -46,6 +46,7 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 ## `check_docker_infra.py`
 - **Purpose:** Validate Docker runtime prerequisites for local startup.
 - **Inputs/Arguments:** None.
+- **Prerequisite:** Root `.env` must exist (for local runs, create it with `cp .env.example .env`).
 - **What it validates:**
   - Required Docker files exist (`compose.yaml`, service env files, helper scripts)
   - Required init directories exist (`infra/docker/init/crm`, `infra/docker/init/erp`, `infra/docker/init/warehouse`)
@@ -60,11 +61,16 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 ## `run_all.sh`
 - **Purpose:** Run all validation checks in a single command.
 - **Inputs/Arguments:** None.
+- **Prerequisite:** Because this script invokes `check_docker_infra.py`, root `.env` must exist first (`cp .env.example .env`).
 - **Exit behavior:**
   - `0` when all checks pass
   - non-zero if any check fails
 - **Example:**
   - `bash tools/validate/run_all.sh`
+
+## CI behavior
+
+The GitHub Actions validation workflow creates root `.env` from `.env.example` before running `bash tools/validate/run_all.sh`, so CI and local validation follow the same prerequisite.
 
 Related standards:
 - [`../standards/testing-standard.md`](../standards/testing-standard.md)

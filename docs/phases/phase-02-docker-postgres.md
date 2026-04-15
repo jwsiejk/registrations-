@@ -39,6 +39,10 @@ Add local Docker-based Postgres services that can be used by later ELT phases.
     - Docker scripts now require root `.env` and pass it explicitly via `--env-file`
     - `docker-up` waits for all three Postgres services to become healthy before returning success
     - Docker infra validation checks required init directories and Compose config parsing, not only file presence
+12. Aligned validation prerequisites across local and CI:
+    - `check_docker_infra.py` requires root `.env`
+    - `make validate` (via `tools/validate/run_all.sh`) therefore requires root `.env`
+    - CI now creates `.env` from `.env.example` before running validation
 
 ## Explicitly out of scope
 
