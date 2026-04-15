@@ -9,7 +9,6 @@ import sys
 MAX_LINES = 500
 EXCLUDED_DIRS = {
     ".git",
-    ".github",  # workflows/templates should still be scanned by explicit include below
     "__pycache__",
     ".venv",
     "venv",
@@ -17,19 +16,10 @@ EXCLUDED_DIRS = {
     "dbt_packages",
     "target",
 }
-EXCLUDED_FILES = {
-    ".gitignore",
-}
 
 
 def should_skip(path: Path) -> bool:
-    parts = set(path.parts)
-    if parts & EXCLUDED_DIRS:
-        # Keep scanning .github for policy coverage.
-        if ".github" in parts:
-            return False
-        return True
-    return path.name in EXCLUDED_FILES
+    return any(part in EXCLUDED_DIRS for part in path.parts)
 
 
 def count_lines(path: Path) -> int:
@@ -40,11 +30,8 @@ def count_lines(path: Path) -> int:
 def collect_files(root: Path) -> list[Path]:
     files: list[Path] = []
     for path in root.rglob("*"):
-        if not path.is_file():
-            continue
-        if should_skip(path):
-            continue
-        files.append(path)
+        if path.is_file() and not should_skip(path):
+            files.append(path)
     return sorted(files)
 
 

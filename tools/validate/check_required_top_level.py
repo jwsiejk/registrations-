@@ -11,6 +11,7 @@ REQUIRED_TOP_LEVEL = [
     ".gitignore",
     "Makefile",
     "README.md",
+    "docs/README.md",
     ".github/pull_request_template.md",
     ".github/workflows/ci-validate.yml",
 ]
