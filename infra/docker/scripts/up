@@ -1,6 +1,73 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMPOSE_FILE="infra/docker/compose.yaml"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+COMPOSE_FILE="$ROOT_DIR/infra/docker/compose.yaml"
+ENV_FILE="$ROOT_DIR/.env"
+SERVICES=(postgres-crm postgres-erp postgres-warehouse)
+TIMEOUT_SECONDS="${DOCKER_UP_TIMEOUT_SECONDS:-120}"
+POLL_INTERVAL_SECONDS=2
 
-docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
+require_env_file() {
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "ERROR: Required environment file is missing: $ENV_FILE"
+    echo "Create it from the template first: cp .env.example .env"
+    exit 1
+  fi
+}
+
+compose() {
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
+}
+
+service_health() {
+  local service="$1"
+  local container_id
+
+  container_id="$(compose ps -q "$service")"
+  if [[ -z "$container_id" ]]; then
+    echo "not-running"
+    return
+  fi
+
+  docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' "$container_id"
+}
+
+wait_for_healthy_services() {
+  local start_ts elapsed
+  start_ts="$(date +%s)"
+
+  while true; do
+    local all_healthy=true
+
+    echo "Waiting for Postgres services to become healthy..."
+    for service in "${SERVICES[@]}"; do
+      local status
+      status="$(service_health "$service")"
+      echo "  - $service: $status"
+      if [[ "$status" != "healthy" ]]; then
+        all_healthy=false
+      fi
+    done
+
+    if [[ "$all_healthy" == true ]]; then
+      echo "All Postgres services are healthy."
+      return
+    fi
+
+    elapsed="$(( $(date +%s) - start_ts ))"
+    if (( elapsed >= TIMEOUT_SECONDS )); then
+      echo "ERROR: Timed out after ${TIMEOUT_SECONDS}s waiting for healthy Postgres services."
+      echo "Current docker compose status:"
+      compose ps
+      exit 1
+    fi
+
+    sleep "$POLL_INTERVAL_SECONDS"
+  done
+}
+
+require_env_file
+compose up -d --remove-orphans
+wait_for_healthy_services

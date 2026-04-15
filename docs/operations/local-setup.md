@@ -20,6 +20,9 @@ This document explains exactly how to start and stop the local runtime environme
    - `ERP_DB_PORT` (default `5434`)
    - `WAREHOUSE_DB_PORT` (default `5435`)
 
+The root `.env` file is required by all Docker helper scripts.
+Scripts call Docker Compose with `--env-file .env` explicitly; they do not rely on implicit env-file discovery.
+
 Service credentials/databases are defined in:
 - `infra/docker/compose/postgres-crm.env`
 - `infra/docker/compose/postgres-erp.env`
@@ -37,16 +40,23 @@ Equivalent direct command:
 bash infra/docker/scripts/up
 ```
 
+`docker-up` now waits until all three services report `healthy`:
+- `postgres-crm`
+- `postgres-erp`
+- `postgres-warehouse`
+
+If services do not become healthy before the timeout, the script exits non-zero and prints compose status.
+
 ## Check status and health
 
 ```bash
 make docker-status
 ```
 
-To verify health explicitly:
+Equivalent direct command:
 
 ```bash
-docker compose -f infra/docker/compose.yaml ps
+docker compose --env-file .env -f infra/docker/compose.yaml ps
 ```
 
 Expected health state for each service: `healthy`.

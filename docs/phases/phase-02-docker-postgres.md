@@ -35,6 +35,10 @@ Add local Docker-based Postgres services that can be used by later ELT phases.
 8. Added `.env.example` entries for host port mappings.
 9. Added docs for architecture and local setup.
 10. Added validation check `tools/validate/check_docker_infra.py` and wired it into local validation workflow.
+11. Hardened Phase 2 runtime behavior:
+    - Docker scripts now require root `.env` and pass it explicitly via `--env-file`
+    - `docker-up` waits for all three Postgres services to become healthy before returning success
+    - Docker infra validation checks required init directories and Compose config parsing, not only file presence
 
 ## Explicitly out of scope
 
@@ -47,6 +51,7 @@ Add local Docker-based Postgres services that can be used by later ELT phases.
 - Docker compose config present and valid: met.
 - Three Postgres services start cleanly: met via local validation commands.
 - Health checks configured and passing: met.
+- `make docker-up` returns success only after all services are healthy: met.
 - Makefile targets for runtime control: met.
 - Documentation current: met.
 - No business model/seed beyond startup proof: met.
