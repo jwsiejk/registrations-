@@ -1,6 +1,6 @@
 # Local ELT Architecture Overview
 
-This project includes local runtime infrastructure for a realistic ELT lab using Docker Compose and PostgreSQL.
+This project implements a realistic local ELT lab using Docker Compose, PostgreSQL, and dbt Core.
 
 ## Runtime components
 
@@ -16,21 +16,35 @@ The Compose stack defines three isolated PostgreSQL services:
    - Represents the analytics warehouse destination.
    - Host port: `5435` (default) -> container port `5432`.
 
-## Phase 02 + Phase 03 design choices
+## End-to-end design goal
 
-- **Service isolation:** each database runs in its own container to mirror independent systems.
-- **Persistent storage:** each service uses a dedicated named volume.
-- **Health checks:** each service uses `pg_isready` for readiness/health reporting.
-- **Thin init entrypoints for sources:**
-  - `infra/docker/init/crm/` and `infra/docker/init/erp/` contain thin scripts only.
-  - Business SQL lives under `db/crm/` and `db/erp/` and is executed in explicit numeric order.
-- **Deterministic source seeds:** realistic CRM and ERP datasets are committed to the repo; no runtime randomness.
-- **Source-only reseed path:** CRM/ERP can be rebuilt in running environments without resetting warehouse volume state.
+The intended flow remains:
 
-## Not included yet
+`source Postgres -> manual Fivetran trial sync -> warehouse Postgres raw schemas -> dbt transformations -> validation`
 
-- Warehouse bootstrap schema and transformations are not implemented.
-- dbt modeling is not implemented.
-- Mutation/re-sync automation is not implemented.
+No alternate source-to-warehouse copy path is implemented in this repository.
 
-Those remain intentionally deferred to later phases.
+## Bootstrap and modeling layers
+
+- **Source bootstrap (CRM/ERP):**
+  - Thin init scripts in `infra/docker/init/crm/` and `infra/docker/init/erp/`
+  - Business SQL in `db/crm/` and `db/erp/`
+- **Warehouse bootstrap:**
+  - Thin init script in `infra/docker/init/warehouse/010-bootstrap.sh`
+  - Business SQL in `db/warehouse/bootstrap/`
+  - Creates analytics-side schemas only (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+- **dbt transformation layer:**
+  - Project at `analytics/dbt/`
+  - Source definitions target expected Fivetran destination schemas:
+    - `fivetran_crm`
+    - `fivetran_erp`
+  - Layered models:
+    - Staging (`stg_*`)
+    - Intermediate (`int_*`)
+    - Marts (`dim_customers`, `fct_orders`, `fct_pipeline`, `customer_360`, `revenue_summary`)
+
+## Operational constraints
+
+- Manual Fivetran actions (connector setup, sync trigger, account interaction) are out of scope for automation in this repo.
+- dbt `run`/`test` depend on manual Fivetran sync having landed required raw tables in warehouse.
+- Raw-source readiness is checked explicitly with `make dbt-raw-source-readiness`.

@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: dim_customers
+    columns:
+      - name: customer_external_id
+        tests: [not_null, unique]
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+      - name: customer_external_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_external_id
+
+  - name: fct_pipeline
+    columns:
+      - name: opportunity_id
+        tests: [not_null, unique]
+      - name: customer_external_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_external_id
+
+  - name: customer_360
+    columns:
+      - name: customer_external_id
+        tests:
+          - not_null
+          - unique
+
+  - name: revenue_summary
+    columns:
+      - name: revenue_month
+        tests:
+          - not_null
+          - unique

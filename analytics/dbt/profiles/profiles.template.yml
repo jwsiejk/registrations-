@@ -1,0 +1,12 @@
+local_elt_lab:
+  target: local
+  outputs:
+    local:
+      type: postgres
+      host: "{{ env_var('DBT_WAREHOUSE_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_WAREHOUSE_PORT', '5435') | as_number }}"
+      user: "{{ env_var('DBT_WAREHOUSE_USER', 'warehouse_user') }}"
+      password: "{{ env_var('DBT_WAREHOUSE_PASSWORD', 'warehouse_password') }}"
+      dbname: "{{ env_var('DBT_WAREHOUSE_DB', 'warehouse') }}"
+      schema: "analytics"
+      threads: 4
