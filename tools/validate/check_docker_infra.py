@@ -19,12 +19,25 @@ REQUIRED_FILES = [
     "infra/docker/scripts/reseed-crm",
     "infra/docker/scripts/reseed-erp",
     "infra/docker/scripts/reseed-sources",
+    "infra/docker/init/crm/010-bootstrap.sh",
+    "infra/docker/init/erp/010-bootstrap.sh",
 ]
 
 REQUIRED_DIRECTORIES = [
     "infra/docker/init/crm",
     "infra/docker/init/erp",
     "infra/docker/init/warehouse",
+    "db/crm/schema",
+    "db/crm/seed",
+    "db/erp/schema",
+    "db/erp/seed",
+]
+
+REQUIRED_SQL_DIRECTORIES = [
+    "db/crm/schema",
+    "db/crm/seed",
+    "db/erp/schema",
+    "db/erp/seed",
 ]
 
 
@@ -38,6 +51,23 @@ def check_required_paths(root: Path) -> bool:
             print(f"  - file: {path}")
         for path in missing_directories:
             print(f"  - directory: {path}")
+        return False
+
+    return True
+
+
+def check_required_sql_files(root: Path) -> bool:
+    missing_sql = []
+
+    for directory in REQUIRED_SQL_DIRECTORIES:
+        sql_files = sorted((root / directory).glob("*.sql"))
+        if not sql_files:
+            missing_sql.append(directory)
+
+    if missing_sql:
+        print("FAIL: Required source SQL directories must each contain at least one .sql file:")
+        for directory in missing_sql:
+            print(f"  - {directory}")
         return False
 
     return True
@@ -85,10 +115,13 @@ def main() -> int:
     if not check_required_paths(root):
         return 1
 
+    if not check_required_sql_files(root):
+        return 1
+
     if not check_compose_config(root):
         return 1
 
-    print("PASS: Docker infrastructure files/directories are present and compose config is valid.")
+    print("PASS: Docker infrastructure files/directories are present, source SQL directories are populated, and compose config is valid.")
     return 0
 
 

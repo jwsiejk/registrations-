@@ -44,16 +44,17 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
   - `python3 tools/validate/check_docs_index.py`
 
 ## `check_docker_infra.py`
-- **Purpose:** Validate Docker runtime prerequisites for local startup.
+- **Purpose:** Validate Docker runtime prerequisites and Phase 03 source-bootstrap assets for local startup.
 - **Inputs/Arguments:** None.
 - **Prerequisite:** Root `.env` must exist (for local runs, create it with `cp .env.example .env`).
 - **What it validates:**
-  - Required Docker files exist (`compose.yaml`, service env files, helper scripts)
-  - Required init directories exist (`infra/docker/init/crm`, `infra/docker/init/erp`, `infra/docker/init/warehouse`)
+  - Required Docker files exist (`compose.yaml`, service env files, helper scripts, reseed scripts, thin bootstrap scripts)
+  - Required init and source SQL directories exist (`infra/docker/init/crm`, `infra/docker/init/erp`, `infra/docker/init/warehouse`, `db/crm/schema`, `db/crm/seed`, `db/erp/schema`, `db/erp/seed`)
+  - Each required source SQL directory contains at least one `.sql` file
   - Root `.env` exists
   - Docker Compose config parses successfully via `docker compose --env-file .env -f infra/docker/compose.yaml config`
 - **Exit behavior:**
-  - `0` when required files/directories are present and compose config validation succeeds
+  - `0` when required files/directories are present, required source SQL directories contain `.sql` files, and compose config validation succeeds
   - `1` when required paths are missing, `.env` is missing, Docker/Compose is unavailable, or compose config is invalid
 - **Example:**
   - `python3 tools/validate/check_docker_infra.py`

@@ -49,7 +49,7 @@ Add repeatable, deterministic source schemas and seed data for local ELT experim
 
 ## Validation performed
 
-- Repository validation via `make validate`
+- Repository validation via `make validate`, including checks that thin bootstrap scripts and committed `db/...` source SQL directories/files required by Phase 03 are present
 - Fresh bootstrap validation via `make docker-reset` then `make docker-up`
 - Source-only reseed validation via `make docker-reseed-sources`
 - Direct SQL verification for table existence and representative row counts on CRM and ERP
