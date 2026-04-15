@@ -4,7 +4,7 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 
 ## `check_file_length.py`
 - **Purpose:** Enforce the 500-line file size policy.
-- **Inputs/Arguments:** Optional paths to scan; defaults to repository root.
+- **Inputs/Arguments:** None. The script scans all files under the current working directory (repository root when run via `make validate`).
 - **Exit behavior:**
   - `0` when all scanned files are within policy
   - `1` when one or more files exceed policy

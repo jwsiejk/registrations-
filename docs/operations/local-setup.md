@@ -68,7 +68,7 @@ make docker-status
 Equivalent direct command:
 
 ```bash
-docker compose --env-file .env -f infra/docker/compose.yaml ps
+bash infra/docker/scripts/status
 ```
 
 Expected health state for each service: `healthy`.
@@ -108,6 +108,35 @@ Equivalent direct command:
 ```bash
 bash infra/docker/scripts/reset
 ```
+
+## Runtime script reference
+
+### `infra/docker/scripts/up`
+- **Purpose:** Start local Postgres services and wait until all configured services report `healthy`.
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env`, `infra/docker/compose.yaml`, and optional `DOCKER_UP_TIMEOUT_SECONDS` (default `120`).
+- **Exit behavior:**
+  - `0` when compose startup succeeds and all services become healthy before timeout
+  - `1` when `.env` is missing or health checks do not reach `healthy` before timeout
+- **Example:**
+  - `bash infra/docker/scripts/up`
+
+### `infra/docker/scripts/down`
+- **Purpose:** Stop and remove runtime containers/orphans without deleting named volumes.
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env` and `infra/docker/compose.yaml`.
+- **Exit behavior:**
+  - `0` when compose shutdown completes
+  - `1` when `.env` is missing or compose returns an error
+- **Example:**
+  - `bash infra/docker/scripts/down`
+
+### `infra/docker/scripts/status`
+- **Purpose:** Print Docker Compose runtime status for local services.
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env` and `infra/docker/compose.yaml`.
+- **Exit behavior:**
+  - `0` when compose status command succeeds
+  - `1` when `.env` is missing or compose returns an error
+- **Example:**
+  - `bash infra/docker/scripts/status`
 
 ## Port reference
 

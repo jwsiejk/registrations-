@@ -38,12 +38,50 @@ Reseed implementation:
 
 Use `make docker-reset` when you need a complete lab reset:
 - Removes containers
-- Removes all named volumes (`crm`, `erp`, and `warehouse`)
+- Removes all Compose named volumes (`postgres_crm_data`, `postgres_erp_data`, `postgres_warehouse_data`)
 - Next `make docker-up` triggers first-time bootstrap again
 
 Use `make docker-reseed-sources` when you need only source refresh:
 - Faster iteration for source schema/data changes
 - Keeps warehouse volume and data intact
+
+## Reset/reseed script reference
+
+### `infra/docker/scripts/reset`
+- **Purpose:** Destructively stop services and remove containers plus named volumes for a full local reset.
+- **Inputs/Arguments:** No CLI arguments. Uses root `.env` and `infra/docker/compose.yaml`.
+- **Exit behavior:**
+  - `0` when `docker compose down -v --remove-orphans` succeeds
+  - `1` when `.env` is missing or compose returns an error
+- **Example:**
+  - `bash infra/docker/scripts/reset`
+
+### `infra/docker/scripts/reseed-crm`
+- **Purpose:** Rebuild CRM source schema/data in the running `postgres-crm` container from committed SQL.
+- **Inputs/Arguments:** No CLI arguments. Requires running compose services plus root `.env`; executes all `db/crm/schema/*.sql` then `db/crm/seed/*.sql` through mounted `/opt/bootstrap/crm/...` paths.
+- **Exit behavior:**
+  - `0` when schema reset and SQL replay complete
+  - `1` when `.env` is missing, container is unavailable, or any SQL step fails (`ON_ERROR_STOP=1`)
+- **Example:**
+  - `bash infra/docker/scripts/reseed-crm`
+
+### `infra/docker/scripts/reseed-erp`
+- **Purpose:** Rebuild ERP source schema/data in the running `postgres-erp` container from committed SQL.
+- **Inputs/Arguments:** No CLI arguments. Requires running compose services plus root `.env`; executes all `db/erp/schema/*.sql` then `db/erp/seed/*.sql` through mounted `/opt/bootstrap/erp/...` paths.
+- **Exit behavior:**
+  - `0` when schema reset and SQL replay complete
+  - `1` when `.env` is missing, container is unavailable, or any SQL step fails (`ON_ERROR_STOP=1`)
+- **Example:**
+  - `bash infra/docker/scripts/reseed-erp`
+
+### `infra/docker/scripts/reseed-sources`
+- **Purpose:** Run both CRM and ERP reseed scripts in sequence.
+- **Inputs/Arguments:** No CLI arguments.
+- **Exit behavior:**
+  - `0` when both `reseed-crm` and `reseed-erp` complete successfully
+  - `1` when either delegated reseed script fails
+- **Example:**
+  - `bash infra/docker/scripts/reseed-sources`
 
 ## Exact command sequences
 
