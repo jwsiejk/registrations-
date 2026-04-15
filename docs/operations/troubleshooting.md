@@ -41,6 +41,14 @@ bash infra/docker/scripts/apply-mutation <crm|erp> <mutation-file.sql>
 
 The script fails clearly when `.env` is missing, the target container is unavailable, the mutation file does not exist, or SQL execution fails.
 
+### Script reference: `infra/docker/scripts/apply-mutation`
+- **Purpose:** Apply one deterministic CRM or ERP source-side mutation SQL file to a running source container.
+- **Inputs/Arguments:** `<crm|erp> <mutation-file.sql>`.
+- **Exit behavior:**
+  - `0` when the mutation SQL is executed successfully.
+  - `1` when arguments are invalid, `.env` is missing, container is unavailable/not running, mutation file is missing, or SQL execution fails.
+- **Example usage:** `bash infra/docker/scripts/apply-mutation crm 010_new_opportunity.sql`
+
 ## CRM mutation scenarios
 
 ### 1) New opportunity
