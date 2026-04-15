@@ -1,10 +1,12 @@
 # Architecture Docs
 
-This folder will hold architecture references for the local Fivetran ELT lab.
+Architecture references for the local Fivetran ELT lab.
 
-Current phase intentionally limits architecture content to repository-level structure.
-Detailed system architecture will be introduced in later phases.
+## Available documents
+
+- Runtime overview: [`overview.md`](./overview.md)
 
 Related:
+- Operations setup: [`../operations/local-setup.md`](../operations/local-setup.md)
 - Phase tracking: [`../phases/`](../phases/)
 - Repository standards: [`../standards/repo-contract.md`](../standards/repo-contract.md)

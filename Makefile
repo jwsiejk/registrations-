@@ -1,4 +1,4 @@
-.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index
+.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra docker-up docker-down docker-status docker-reset
 
 help:
 	@echo "Available targets:"
@@ -7,7 +7,11 @@ help:
 	@echo "  make validate-required-docs      # Check required docs exist"
 	@echo "  make validate-required-top-level # Check required top-level files exist"
 	@echo "  make validate-docs-index         # Check key docs index targets exist"
-	@echo "  # Future phases will add targets for docker, dbt, seed data, and simulation"
+	@echo "  make validate-docker-infra       # Check Docker compose/env/script requirements"
+	@echo "  make docker-up                   # Start local Postgres services"
+	@echo "  make docker-down                 # Stop local Postgres services"
+	@echo "  make docker-status               # Show local Postgres service status"
+	@echo "  make docker-reset                # Remove containers and named volumes"
 
 validate:
 	bash tools/validate/run_all.sh
@@ -23,3 +27,18 @@ validate-required-top-level:
 
 validate-docs-index:
 	python3 tools/validate/check_docs_index.py
+
+validate-docker-infra:
+	python3 tools/validate/check_docker_infra.py
+
+docker-up:
+	bash infra/docker/scripts/up
+
+docker-down:
+	bash infra/docker/scripts/down
+
+docker-status:
+	bash infra/docker/scripts/status
+
+docker-reset:
+	bash infra/docker/scripts/reset
