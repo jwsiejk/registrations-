@@ -13,7 +13,8 @@ make warehouse-bootstrap
 Notes:
 - `make warehouse-bootstrap` is safe and repeatable on running `postgres-warehouse`.
 - Fresh warehouse volumes also run bootstrap automatically through `infra/docker/init/warehouse/010-bootstrap.sh`.
-- Bootstrap creates analytics-side schemas only; it does **not** create fake Fivetran raw tables.
+- Bootstrap creates dbt analytics schemas (`analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`); it does **not** create fake Fivetran raw tables.
+- dbt schema resolution is explicit via `analytics/dbt/macros/generate_schema_name.sql`: models with configured `+schema` land exactly in that schema (no implicit concatenation).
 
 ## 2) dbt dependency and profile setup
 
@@ -23,7 +24,7 @@ make dbt-profile-setup
 make dbt-deps
 ```
 
-- `make dbt-install-deps` installs pinned Python packages from `analytics/dbt/requirements.txt`.
+- `make dbt-install-deps` installs pinned and aligned dbt packages from `analytics/dbt/requirements.txt` (`dbt-core==1.10.13`, `dbt-postgres==1.10.13`).
 - `make dbt-profile-setup` copies `analytics/dbt/profiles/profiles.template.yml` to `analytics/dbt/profiles/profiles.yml`.
 - Profile values use environment variables for host/port/user/password/dbname.
 

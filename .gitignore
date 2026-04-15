@@ -17,6 +17,12 @@ env/
 /target/
 /logs/
 
+# dbt local project artifacts
+analytics/dbt/profiles/profiles.yml
+analytics/dbt/target/
+analytics/dbt/dbt_packages/
+analytics/dbt/logs/
+
 # Docker
 *.pid
 *.log

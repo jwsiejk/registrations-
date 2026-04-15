@@ -41,7 +41,8 @@ This contract defines **mandatory rules** for contributors. These rules are acti
 - Script documentation must live in the operations runbook that matches script type:
   - Validation scripts (`tools/validate/*`) in [`../operations/validation-tools.md`](../operations/validation-tools.md)
   - Docker runtime scripts (`infra/docker/scripts/up`, `down`, `status`) in [`../operations/local-setup.md`](../operations/local-setup.md)
-  - Docker init/bootstrap scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`) in [`../operations/local-setup.md`](../operations/local-setup.md)
+  - Docker init/bootstrap scripts (`infra/docker/init/crm/010-bootstrap.sh`, `infra/docker/init/erp/010-bootstrap.sh`, `infra/docker/init/warehouse/010-bootstrap.sh`) in [`../operations/local-setup.md`](../operations/local-setup.md)
+  - Warehouse runtime bootstrap script (`infra/docker/scripts/bootstrap-warehouse`) in [`../operations/local-setup.md`](../operations/local-setup.md)
   - Docker reset/reseed scripts (`infra/docker/scripts/reset`, `reseed-*`) in [`../operations/reset-reseed.md`](../operations/reset-reseed.md)
 
 ## 7) Naming convention

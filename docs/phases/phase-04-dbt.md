@@ -29,6 +29,13 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
    - `dbt-profile-setup`, `dbt-install-deps`, `dbt-deps`, `dbt-parse`, `dbt-compile`, `dbt-raw-source-readiness`, `dbt-run`, `dbt-test`
 8. Added explicit raw-source readiness checker:
    - `tools/validate/check_dbt_raw_sources.py`
+9. Phase 04 hardening follow-up completed:
+   - Aligned dbt package pins to `dbt-core==1.10.13` and `dbt-postgres==1.10.13`
+   - Added explicit dbt schema resolution macro (`analytics/dbt/macros/generate_schema_name.sql`) so configured model schemas are used exactly
+   - Updated warehouse bootstrap SQL to create `analytics` plus layer schemas (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
+   - Tightened Docker infra validation coverage to require warehouse init script and clearer Phase 4 messaging
+   - Restored operations/contract script-documentation coverage for warehouse init/bootstrap scripts
+   - Added repo-local dbt artifact ignore rules for profile/target/packages/logs
 
 ## Validation performed
 
@@ -37,6 +44,7 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
 - `make docker-up`
 - `make warehouse-bootstrap`
 - `make dbt-install-deps`
+- `python3 -m pip show dbt-core dbt-postgres`
 - `make dbt-profile-setup`
 - `make dbt-deps`
 - `make dbt-parse`
