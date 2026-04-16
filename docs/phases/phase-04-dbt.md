@@ -31,6 +31,7 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
    - `tools/validate/check_dbt_raw_sources.py`
 9. Phase 04 hardening follow-up completed:
    - Aligned dbt package pins in `analytics/dbt/requirements.txt` to `dbt-core==1.10.13` and `dbt-postgres==1.10.0`
+   - Kept dependency install path aligned to the Make target implementation: `make dbt-install-deps` executes `python3 -m pip install -r $(DBT_PROJECT_DIR)/requirements.txt` where `DBT_PROJECT_DIR=analytics/dbt`
    - Added explicit dbt schema resolution macro (`analytics/dbt/macros/generate_schema_name.sql`) so configured model schemas are used exactly
    - Updated warehouse bootstrap SQL to create `analytics` plus layer schemas (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
    - Tightened Docker infra validation coverage to require warehouse init script and clearer Phase 4 messaging
@@ -45,7 +46,7 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
 - `make docker-up`
 - `make warehouse-bootstrap`
 - `make dbt-install-deps`
-  - Installs pinned dbt adapter/runtime packages from `analytics/dbt/requirements.txt` via `python3 -m pip install -r analytics/dbt/requirements.txt`
+  - Installs pinned dbt adapter/runtime packages from `analytics/dbt/requirements.txt` via `python3 -m pip install -r $(DBT_PROJECT_DIR)/requirements.txt` (`DBT_PROJECT_DIR=analytics/dbt`)
 - `python3 -m pip show dbt-core dbt-postgres`
 - `make dbt-profile-setup`
 - `make dbt-deps`
