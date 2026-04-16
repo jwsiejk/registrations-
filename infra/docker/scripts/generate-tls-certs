@@ -34,15 +34,29 @@ require_openssl() {
 }
 
 generate_ca() {
+  local req_config
   mkdir -p "$CA_DIR"
+  req_config="$(mktemp "$CA_DIR/ca-req-XXXXXX.cnf")"
+
+  cat > "$req_config" <<EOT
+[req]
+distinguished_name=req_distinguished_name
+prompt=no
+
+[req_distinguished_name]
+CN=registrations-local-postgres-ca
+EOT
+
   openssl req -x509 -new -nodes \
     -keyout "$CA_DIR/ca.key" \
     -out "$CA_DIR/ca.crt" \
     -sha256 \
     -days "$DAYS" \
-    -subj "/CN=registrations-local-postgres-ca" >/dev/null 2>&1
+    -config "$req_config" >/dev/null 2>&1
   chmod 600 "$CA_DIR/ca.key"
   chmod 644 "$CA_DIR/ca.crt"
+
+  rm -f "$req_config"
 }
 
 generate_service_cert() {
@@ -50,6 +64,7 @@ generate_service_cert() {
   local service_dir="$TLS_ROOT/$service"
   local cn="postgres-${service}"
   local ext_file="$service_dir/server.ext"
+  local req_config
 
   mkdir -p "$service_dir"
 
@@ -61,8 +76,21 @@ extendedKeyUsage=serverAuth
 subjectAltName=DNS:postgres-${service},DNS:localhost,IP:127.0.0.1
 EOT
 
+  req_config="$(mktemp "$service_dir/server-req-XXXXXX.cnf")"
+  cat > "$req_config" <<EOT
+[req]
+distinguished_name=req_distinguished_name
+prompt=no
+
+[req_distinguished_name]
+CN=$cn
+EOT
+
   openssl genrsa -out "$service_dir/server.key" 2048 >/dev/null 2>&1
-  openssl req -new -key "$service_dir/server.key" -out "$service_dir/server.csr" -subj "/CN=$cn" >/dev/null 2>&1
+  openssl req -new \
+    -key "$service_dir/server.key" \
+    -out "$service_dir/server.csr" \
+    -config "$req_config" >/dev/null 2>&1
   openssl x509 -req -in "$service_dir/server.csr" \
     -CA "$CA_DIR/ca.crt" \
     -CAkey "$CA_DIR/ca.key" \
@@ -77,7 +105,7 @@ EOT
   chmod 600 "$service_dir/server.key"
   chmod 644 "$service_dir/server.crt" "$service_dir/ca.crt"
 
-  rm -f "$service_dir/server.csr" "$ext_file"
+  rm -f "$service_dir/server.csr" "$ext_file" "$req_config"
 }
 
 require_openssl
