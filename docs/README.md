@@ -23,3 +23,4 @@
   - [`phases/phase-04-dbt.md`](./phases/phase-04-dbt.md)
   - [`phases/phase-05-simulation.md`](./phases/phase-05-simulation.md)
   - [`phases/phase-06-operator-runbook.md`](./phases/phase-06-operator-runbook.md)
+  - [`phases/phase-07-hardening.md`](./phases/phase-07-hardening.md)

@@ -28,6 +28,7 @@ REQUIRED_DOCS = [
     "docs/phases/phase-04-dbt.md",
     "docs/phases/phase-05-simulation.md",
     "docs/phases/phase-06-operator-runbook.md",
+    "docs/phases/phase-07-hardening.md",
 ]
 
 
