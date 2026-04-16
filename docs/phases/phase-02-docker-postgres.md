@@ -59,3 +59,14 @@ Add local Docker-based Postgres services that can be used by later ELT phases.
 - Makefile targets for runtime control: met.
 - Documentation current: met.
 - No business model/seed beyond startup proof: met.
+
+## Follow-up: local PostgreSQL TLS enablement
+
+A scoped infrastructure follow-up added explicit TLS wiring for all three local Postgres services:
+
+- Compose services now use `infra/docker/scripts/postgres-entrypoint-with-tls.sh`.
+- TLS assets are generated locally via `infra/docker/scripts/generate-tls-certs`.
+- `make docker-up` now generates TLS assets before starting containers.
+
+This preserves Phase 02 runtime goals while hardening local connector readiness for manual Fivetran through Proxy Agent.
+

@@ -38,3 +38,6 @@ analytics/dbt/logs/
 Thumbs.db
 .idea/
 .vscode/
+
+# Local Postgres TLS assets (generated)
+infra/docker/tls/

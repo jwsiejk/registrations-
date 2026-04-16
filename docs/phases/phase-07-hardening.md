@@ -77,3 +77,7 @@ CI does **not** enforce, unless corresponding real environment state exists:
 - Source/warehouse runtime behavior changes
 - dbt transformation business logic changes
 - Mutation behavior changes
+
+## Post-phase note
+
+Local PostgreSQL TLS runtime enablement was delivered as a separate scoped infrastructure follow-up and is documented in Phase 02/operations docs, not as part of this Phase 07 hardening scope.

@@ -3,14 +3,20 @@ services:
     image: postgres:16
     container_name: postgres-crm
     restart: unless-stopped
+    entrypoint: ["/usr/local/bin/postgres-entrypoint-with-tls.sh"]
+    command: ["postgres"]
     env_file:
       - ./compose/postgres-crm.env
+    environment:
+      TLS_SERVICE_NAME: crm
     ports:
       - "${CRM_DB_PORT:-5433}:5432"
     volumes:
       - postgres_crm_data:/var/lib/postgresql/data
       - ./init/crm:/docker-entrypoint-initdb.d:ro
       - ../../db/crm:/opt/bootstrap/crm:ro
+      - ./scripts/postgres-entrypoint-with-tls.sh:/usr/local/bin/postgres-entrypoint-with-tls.sh:ro
+      - ./tls:/opt/postgres-tls:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -22,14 +28,20 @@ services:
     image: postgres:16
     container_name: postgres-erp
     restart: unless-stopped
+    entrypoint: ["/usr/local/bin/postgres-entrypoint-with-tls.sh"]
+    command: ["postgres"]
     env_file:
       - ./compose/postgres-erp.env
+    environment:
+      TLS_SERVICE_NAME: erp
     ports:
       - "${ERP_DB_PORT:-5434}:5432"
     volumes:
       - postgres_erp_data:/var/lib/postgresql/data
       - ./init/erp:/docker-entrypoint-initdb.d:ro
       - ../../db/erp:/opt/bootstrap/erp:ro
+      - ./scripts/postgres-entrypoint-with-tls.sh:/usr/local/bin/postgres-entrypoint-with-tls.sh:ro
+      - ./tls:/opt/postgres-tls:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -41,14 +53,20 @@ services:
     image: postgres:16
     container_name: postgres-warehouse
     restart: unless-stopped
+    entrypoint: ["/usr/local/bin/postgres-entrypoint-with-tls.sh"]
+    command: ["postgres"]
     env_file:
       - ./compose/postgres-warehouse.env
+    environment:
+      TLS_SERVICE_NAME: warehouse
     ports:
       - "${WAREHOUSE_DB_PORT:-5435}:5432"
     volumes:
       - postgres_warehouse_data:/var/lib/postgresql/data
       - ./init/warehouse:/docker-entrypoint-initdb.d:ro
       - ../../db/warehouse:/opt/bootstrap/warehouse:ro
+      - ./scripts/postgres-entrypoint-with-tls.sh:/usr/local/bin/postgres-entrypoint-with-tls.sh:ro
+      - ./tls:/opt/postgres-tls:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s

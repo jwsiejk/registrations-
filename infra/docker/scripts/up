@@ -21,6 +21,11 @@ compose() {
   docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
 }
 
+generate_tls_assets() {
+  echo "Generating local Postgres TLS assets..."
+  bash "$ROOT_DIR/infra/docker/scripts/generate-tls-certs"
+}
+
 service_health() {
   local service="$1"
   local container_id
@@ -69,5 +74,6 @@ wait_for_healthy_services() {
 }
 
 require_env_file
+generate_tls_assets
 compose up -d --remove-orphans
 wait_for_healthy_services
