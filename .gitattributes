@@ -1,0 +1,4 @@
+# Enforce LF for shell scripts executed in Linux environments
+*.sh text eol=lf
+infra/docker/scripts/* text eol=lf
+infra/docker/init/**/*.sh text eol=lf
