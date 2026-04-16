@@ -88,6 +88,7 @@ make dbt-test
 - Generated cert path (ignored in git): `infra/docker/tls/`
 - Manual generation command (optional): `make docker-tls-setup`
 - TLS is enabled at PostgreSQL runtime with explicit `ssl_*` settings from `infra/docker/scripts/postgres-entrypoint-with-tls.sh`
+- On Windows Git Bash/MSYS, TLS generation script automatically applies required MSYS path/arg conversion guards for OpenSSL.
 
 For TLS connection details and validation commands, see:
 - [`docs/operations/local-setup.md`](docs/operations/local-setup.md)
