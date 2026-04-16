@@ -16,6 +16,16 @@ fi
 
 DAYS="${TLS_CERT_VALIDITY_DAYS:-825}"
 
+configure_msys_arg_conversion() {
+  case "${OSTYPE:-}" in
+    msys*|cygwin*)
+      # Prevent Git Bash/MSYS from rewriting OpenSSL arguments and file paths.
+      export MSYS_NO_PATHCONV=1
+      export MSYS2_ARG_CONV_EXCL="*"
+      ;;
+  esac
+}
+
 require_openssl() {
   if ! command -v openssl >/dev/null 2>&1; then
     echo "ERROR: openssl is required to generate local TLS assets."
@@ -71,6 +81,7 @@ EOT
 }
 
 require_openssl
+configure_msys_arg_conversion
 rm -rf "$TLS_ROOT"
 mkdir -p "$TLS_ROOT"
 

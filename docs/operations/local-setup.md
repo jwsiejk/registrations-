@@ -40,6 +40,8 @@ To generate/re-generate TLS assets manually:
 make docker-tls-setup
 ```
 
+Windows Git Bash note: `infra/docker/scripts/generate-tls-certs` now automatically sets `MSYS_NO_PATHCONV=1` and `MSYS2_ARG_CONV_EXCL="*"` when running under MSYS/Cygwin shells so OpenSSL arguments/paths are not rewritten.
+
 Optional certificate validity override (days): `TLS_CERT_VALIDITY_DAYS` in root `.env`.
 
 ## Start environment
