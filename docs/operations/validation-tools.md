@@ -50,8 +50,17 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
   - `1` when required paths are missing, `.env` is missing, Docker/Compose is unavailable, or compose config is invalid
 - **Example:** `python3 tools/validate/check_docker_infra.py`
 
+## `check_dbt_project.py`
+- **Purpose:** Validate required dbt project structure files and directories exist.
+- **Inputs/Arguments:** None.
+- **Scope:** Structure-only validation; does not replace `dbt parse`/`dbt compile` semantic checks.
+- **Exit behavior:**
+  - `0` when all required dbt files/directories are present
+  - `1` when one or more required dbt files/directories are missing
+- **Example:** `python3 tools/validate/check_dbt_project.py`
+
 ## `check_dbt_raw_sources.py`
-- **Purpose:** Verify Phase 04 raw-source readiness by checking required Fivetran-landed tables in `postgres-warehouse`.
+- **Purpose:** Verify raw-source readiness by checking required Fivetran-landed tables in `postgres-warehouse`.
 - **Inputs/Arguments:** None.
 - **Prerequisites:** Root `.env` exists and `postgres-warehouse` is running.
 - **Checks:**
@@ -63,9 +72,16 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 - **Example:** `python3 tools/validate/check_dbt_raw_sources.py`
 
 ## `run_all.sh`
-- **Purpose:** Run repository policy/infrastructure validation checks in one command.
+- **Purpose:** Run repository policy/infrastructure/dbt-structure validation checks in one command.
 - **Inputs/Arguments:** None.
 - **Prerequisite:** Root `.env` must exist first.
+- **Checks run:**
+  - `check_file_length.py`
+  - `check_required_docs.py`
+  - `check_required_top_level.py`
+  - `check_docs_index.py`
+  - `check_docker_infra.py`
+  - `check_dbt_project.py`
 - **Exit behavior:**
   - `0` when all checks pass
   - non-zero if any check fails

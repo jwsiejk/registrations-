@@ -8,7 +8,7 @@ Design goal:
 `source Postgres -> manual Fivetran sync -> warehouse Postgres raw schemas -> dbt -> validation -> mutate -> manual re-sync -> validation`
 
 ## Current status
-Phase 01 through Phase 06 are in place:
+Phase 01 through Phase 07 are in place:
 
 - Repository standards, contracts, and validation tooling
 - Local Docker runtime with three PostgreSQL databases:
@@ -24,7 +24,8 @@ Phase 01 through Phase 06 are in place:
   - `fivetran_crm`
   - `fivetran_erp`
 - Controlled source-side mutation scenarios for CRM/ERP under `db/*/mutate`
-- Final Phase 06 operator documentation for manual Fivetran and Proxy Agent setup
+- Operator documentation for manual Fivetran and Proxy Agent setup
+- Phase 07 CI/validation hardening for repo structure and dbt project structure gates
 
 Manual Fivetran actions remain manual by design. This repo does not automate Fivetran account/connector/destination/agent actions and does not include a fake ingestion fallback.
 
@@ -75,7 +76,7 @@ make dbt-deps
 make dbt-raw-source-readiness
 # when readiness passes after manual sync:
 make dbt-parse
-make dbt-compile
+make dbt-compile  # local gate when dbt is installed
 make dbt-run
 make dbt-test
 ```
@@ -102,8 +103,37 @@ Run repository checks:
 make validate
 ```
 
+Useful targeted checks:
+
+```bash
+make validate-dbt-project
+make dbt-parse
+make dbt-compile  # local gate when dbt is installed
+make mutate-list
+```
+
+## CI enforcement summary
+
+CI enforces:
+
+- root `.env` creation from `.env.example`
+- repository validation scripts (`bash tools/validate/run_all.sh`)
+- Docker/bootstrap structure validation
+- dbt project structure validation
+- dbt dependency installation from pinned requirements
+- dbt profile setup
+- dbt parse
+- mutation target listing (`make mutate-list`)
+
+CI intentionally does **not** enforce unless environment state truly exists:
+
+- dbt compile (kept as a local gate in this phase due environment-dependent dbt install constraints observed during validation)
+- manual Fivetran sync success
+- raw-source readiness success (`make dbt-raw-source-readiness`)
+- `dbt run` / `dbt test` against real landed raw tables
+
 For full operator flow, see:
-- Phase 06 runbook: [`docs/phases/phase-06-operator-runbook.md`](docs/phases/phase-06-operator-runbook.md)
+- Phase 07 hardening record: [`docs/phases/phase-07-hardening.md`](docs/phases/phase-07-hardening.md)
 - Validation workflow: [`docs/operations/validation.md`](docs/operations/validation.md)
 
 ## Repository structure

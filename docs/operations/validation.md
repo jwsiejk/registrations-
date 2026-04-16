@@ -1,6 +1,6 @@
 # Validation Workflow
 
-This runbook explains the honest validation flow for local runtime, manual Fivetran sync boundary, and dbt execution.
+This runbook defines the honest validation flow for repository gates, dbt structural gates, dbt parse/compile gates, and raw-source readiness boundaries.
 
 Primary operator references:
 - Manual setup + sync flow: [`fivetran-setup.md`](./fivetran-setup.md)
@@ -20,7 +20,19 @@ Notes:
 - Fresh warehouse volumes also run bootstrap automatically through `infra/docker/init/warehouse/010-bootstrap.sh`.
 - Bootstrap creates dbt analytics schemas (`analytics`, `analytics_staging`, `analytics_intermediate`, `analytics_marts`); it does **not** create raw Fivetran tables.
 
-## 2) dbt dependency and profile setup
+## 2) Repository validation gates
+
+```bash
+make validate
+```
+
+`make validate` runs repository validation scripts (via `tools/validate/run_all.sh`), including:
+
+- Repository/documentation/index/top-level validation
+- Docker/bootstrap structure validation and compose config validation
+- dbt project structure validation (`tools/validate/check_dbt_project.py`)
+
+## 3) dbt dependency and profile setup
 
 ```bash
 make dbt-install-deps
@@ -31,17 +43,18 @@ make dbt-deps
 - `make dbt-install-deps` installs pinned dbt packages from `analytics/dbt/requirements.txt`.
 - `make dbt-profile-setup` copies `analytics/dbt/profiles/profiles.template.yml` to `analytics/dbt/profiles/profiles.yml`.
 
-## 3) Parse and compile checks
+## 4) dbt parse and compile gates
 
 ```bash
 make dbt-parse
-make dbt-compile
+make dbt-compile  # local gate when dbt is installed
 ```
 
-- These validate project structure, references, and SQL compilation.
+- These validate dbt project structure, refs/sources, and SQL compilation.
 - Parse/compile can pass before raw Fivetran tables exist.
+- Parse/compile are not a substitute for real landed raw data validation.
 
-## 4) Raw-source readiness check
+## 5) Raw-source readiness gate (separate, explicit)
 
 ```bash
 make dbt-raw-source-readiness
@@ -58,7 +71,7 @@ Expected behavior:
 
 A fail here is correct until manual Fivetran setup + manual sync is completed.
 
-## 5) When dbt run/test are expected to work
+## 6) When dbt run/test are expected to work
 
 Only run these after readiness passes:
 
@@ -69,14 +82,30 @@ make dbt-test
 
 Interpretation guidance:
 - If readiness fails, `dbt run`/`dbt test` are correctly blocked by missing upstream raw tables.
-- Do not fabricate raw data and do not claim dbt success without successful command output.
+- Do not fabricate raw data and do not claim dbt run/test success without successful command output.
 
-## 6) Mutation validation boundary
+## 7) Mutation usability signal
 
-Mutation scenarios are source-side only (`postgres-crm`, `postgres-erp`).
+```bash
+make mutate-list
+```
 
-- Apply and verify source-side mutations using `make mutate-*` and direct SQL checks.
-- Then run manual sync for affected connector(s).
-- Only then expect downstream raw/dbt changes.
+`make mutate-list` confirms mutation targets are discoverable and operator-usable.
 
-For detailed mutation operations and recovery guidance, see [`troubleshooting.md`](./troubleshooting.md) and [`reset-reseed.md`](./reset-reseed.md).
+## 8) CI enforcement summary
+
+CI currently enforces:
+
+- Root `.env` creation from `.env.example`
+- Full validation scripts (`bash tools/validate/run_all.sh`)
+- dbt dependency installation from pinned requirements
+- dbt profile setup from template
+- dbt parse
+- mutation target listing
+
+CI intentionally does **not** enforce (unless the CI environment truly has that state):
+
+- dbt compile (retained as a local gate in this phase due environment-dependent dbt install constraints observed during validation)
+- Manual Fivetran sync success
+- Raw-source readiness success
+- `dbt run`/`dbt test` against real landed raw tables

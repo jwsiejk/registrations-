@@ -21,6 +21,17 @@ jobs:
       - name: Prepare root .env for validation
         run: cp .env.example .env
 
-      - name: Run validation checks
-        run: |
-          bash tools/validate/run_all.sh
+      - name: Run full repository validation checks
+        run: bash tools/validate/run_all.sh
+
+      - name: Install pinned dbt dependencies
+        run: make dbt-install-deps
+
+      - name: Create dbt profile from template
+        run: make dbt-profile-setup
+
+      - name: Parse dbt project
+        run: make dbt-parse
+
+      - name: Verify mutation targets are available
+        run: make mutate-list
