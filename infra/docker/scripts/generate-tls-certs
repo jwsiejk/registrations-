@@ -48,6 +48,7 @@ CN=registrations-local-postgres-ca
 EOT
 
   openssl req -x509 -new -nodes \
+    -batch \
     -keyout "$CA_DIR/ca.key" \
     -out "$CA_DIR/ca.crt" \
     -sha256 \
@@ -88,6 +89,7 @@ EOT
 
   openssl genrsa -out "$service_dir/server.key" 2048 >/dev/null 2>&1
   openssl req -new \
+    -batch \
     -key "$service_dir/server.key" \
     -out "$service_dir/server.csr" \
     -config "$req_config" >/dev/null 2>&1
