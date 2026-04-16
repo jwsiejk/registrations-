@@ -18,7 +18,7 @@ install -d -m 700 "$DST_DIR"
 install -m 600 "$SRC_DIR/server.key" "$DST_DIR/server.key"
 install -m 644 "$SRC_DIR/server.crt" "$DST_DIR/server.crt"
 install -m 644 "$SRC_DIR/ca.crt" "$DST_DIR/ca.crt"
-chown postgres:postgres "$DST_DIR/server.key" "$DST_DIR/server.crt" "$DST_DIR/ca.crt"
+chown postgres:postgres "$DST_DIR" "$DST_DIR/server.key" "$DST_DIR/server.crt" "$DST_DIR/ca.crt"
 
 exec /usr/local/bin/docker-entrypoint.sh "$@" \
   -c ssl=on \
