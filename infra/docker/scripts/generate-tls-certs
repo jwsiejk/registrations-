@@ -26,6 +26,21 @@ configure_msys_arg_conversion() {
   esac
 }
 
+openssl_path() {
+  local path="$1"
+
+  case "${OSTYPE:-}" in
+    msys*|cygwin*)
+      if command -v cygpath >/dev/null 2>&1; then
+        cygpath -m "$path"
+        return
+      fi
+      ;;
+  esac
+
+  echo "$path"
+}
+
 require_openssl() {
   if ! command -v openssl >/dev/null 2>&1; then
     echo "ERROR: openssl is required to generate local TLS assets."
@@ -35,8 +50,11 @@ require_openssl() {
 
 generate_ca() {
   local req_config
+  local openssl_err
   mkdir -p "$CA_DIR"
   req_config="$(mktemp "$CA_DIR/ca-req-XXXXXX.cnf")"
+  openssl_err="$(mktemp "$CA_DIR/ca-req-XXXXXX.log")"
+  trap 'rm -f "$req_config" "$openssl_err"' RETURN
 
   cat > "$req_config" <<EOT
 [req]
@@ -47,17 +65,19 @@ prompt=no
 CN=registrations-local-postgres-ca
 EOT
 
-  openssl req -x509 -new -nodes \
+  if ! openssl req -x509 -new -nodes \
     -batch \
-    -keyout "$CA_DIR/ca.key" \
-    -out "$CA_DIR/ca.crt" \
+    -keyout "$(openssl_path "$CA_DIR/ca.key")" \
+    -out "$(openssl_path "$CA_DIR/ca.crt")" \
     -sha256 \
     -days "$DAYS" \
-    -config "$req_config" >/dev/null 2>&1
+    -config "$(openssl_path "$req_config")" >/dev/null 2>"$openssl_err"; then
+    echo "ERROR: OpenSSL failed while generating local CA certificate." >&2
+    cat "$openssl_err" >&2
+    return 1
+  fi
   chmod 600 "$CA_DIR/ca.key"
   chmod 644 "$CA_DIR/ca.crt"
-
-  rm -f "$req_config"
 }
 
 generate_service_cert() {
@@ -87,20 +107,20 @@ prompt=no
 CN=$cn
 EOT
 
-  openssl genrsa -out "$service_dir/server.key" 2048 >/dev/null 2>&1
+  openssl genrsa -out "$(openssl_path "$service_dir/server.key")" 2048 >/dev/null 2>&1
   openssl req -new \
     -batch \
-    -key "$service_dir/server.key" \
-    -out "$service_dir/server.csr" \
-    -config "$req_config" >/dev/null 2>&1
-  openssl x509 -req -in "$service_dir/server.csr" \
-    -CA "$CA_DIR/ca.crt" \
-    -CAkey "$CA_DIR/ca.key" \
+    -key "$(openssl_path "$service_dir/server.key")" \
+    -out "$(openssl_path "$service_dir/server.csr")" \
+    -config "$(openssl_path "$req_config")" >/dev/null 2>&1
+  openssl x509 -req -in "$(openssl_path "$service_dir/server.csr")" \
+    -CA "$(openssl_path "$CA_DIR/ca.crt")" \
+    -CAkey "$(openssl_path "$CA_DIR/ca.key")" \
     -CAcreateserial \
-    -out "$service_dir/server.crt" \
+    -out "$(openssl_path "$service_dir/server.crt")" \
     -days "$DAYS" \
     -sha256 \
-    -extfile "$ext_file" >/dev/null 2>&1
+    -extfile "$(openssl_path "$ext_file")" >/dev/null 2>&1
 
   cp "$CA_DIR/ca.crt" "$service_dir/ca.crt"
 
