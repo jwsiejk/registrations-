@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+TLS_ROOT="$ROOT_DIR/infra/docker/tls"
+CA_DIR="$TLS_ROOT/ca"
+ENV_FILE="$ROOT_DIR/.env"
+
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
+
+DAYS="${TLS_CERT_VALIDITY_DAYS:-825}"
+
+require_openssl() {
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "ERROR: openssl is required to generate local TLS assets."
+    exit 1
+  fi
+}
+
+generate_ca() {
+  mkdir -p "$CA_DIR"
+  openssl req -x509 -new -nodes \
+    -keyout "$CA_DIR/ca.key" \
+    -out "$CA_DIR/ca.crt" \
+    -sha256 \
+    -days "$DAYS" \
+    -subj "/CN=registrations-local-postgres-ca" >/dev/null 2>&1
+  chmod 600 "$CA_DIR/ca.key"
+  chmod 644 "$CA_DIR/ca.crt"
+}
+
+generate_service_cert() {
+  local service="$1"
+  local service_dir="$TLS_ROOT/$service"
+  local cn="postgres-${service}"
+  local ext_file="$service_dir/server.ext"
+
+  mkdir -p "$service_dir"
+
+  cat > "$ext_file" <<EOT
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage=digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:postgres-${service},DNS:localhost,IP:127.0.0.1
+EOT
+
+  openssl genrsa -out "$service_dir/server.key" 2048 >/dev/null 2>&1
+  openssl req -new -key "$service_dir/server.key" -out "$service_dir/server.csr" -subj "/CN=$cn" >/dev/null 2>&1
+  openssl x509 -req -in "$service_dir/server.csr" \
+    -CA "$CA_DIR/ca.crt" \
+    -CAkey "$CA_DIR/ca.key" \
+    -CAcreateserial \
+    -out "$service_dir/server.crt" \
+    -days "$DAYS" \
+    -sha256 \
+    -extfile "$ext_file" >/dev/null 2>&1
+
+  cp "$CA_DIR/ca.crt" "$service_dir/ca.crt"
+
+  chmod 600 "$service_dir/server.key"
+  chmod 644 "$service_dir/server.crt" "$service_dir/ca.crt"
+
+  rm -f "$service_dir/server.csr" "$ext_file"
+}
+
+require_openssl
+rm -rf "$TLS_ROOT"
+mkdir -p "$TLS_ROOT"
+
+generate_ca
+for service in crm erp warehouse; do
+  generate_service_cert "$service"
+done
+
+echo "Generated local Postgres TLS assets in: $TLS_ROOT"

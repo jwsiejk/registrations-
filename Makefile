@@ -1,4 +1,4 @@
-.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra validate-dbt-project docker-up docker-down docker-status docker-reset docker-reseed-sources docker-reseed-crm docker-reseed-erp warehouse-bootstrap mutate-list mutate-crm-new-opportunity mutate-crm-stage-progression mutate-crm-schema-drift mutate-erp-new-order mutate-erp-late-invoice mutate-erp-data-quality-edge dbt-profile-setup dbt-install-deps dbt-deps dbt-parse dbt-compile dbt-raw-source-readiness dbt-run dbt-test
+.PHONY: help validate validate-file-length validate-required-docs validate-required-top-level validate-docs-index validate-docker-infra validate-dbt-project docker-tls-setup docker-up docker-down docker-status docker-reset docker-reseed-sources docker-reseed-crm docker-reseed-erp warehouse-bootstrap mutate-list mutate-crm-new-opportunity mutate-crm-stage-progression mutate-crm-schema-drift mutate-erp-new-order mutate-erp-late-invoice mutate-erp-data-quality-edge dbt-profile-setup dbt-install-deps dbt-deps dbt-parse dbt-compile dbt-raw-source-readiness dbt-run dbt-test
 
 DBT_PROJECT_DIR := analytics/dbt
 DBT_PROFILES_DIR := $(DBT_PROJECT_DIR)/profiles
@@ -15,6 +15,7 @@ help:
 	@echo "  make validate-docs-index         # Check key docs index targets exist"
 	@echo "  make validate-docker-infra       # Check Docker compose/env/script requirements"
 	@echo "  make validate-dbt-project        # Check required dbt project files/directories"
+	@echo "  make docker-tls-setup            # Generate local TLS assets for Postgres services"
 	@echo "  make docker-up                   # Start local Postgres services"
 	@echo "  make docker-down                 # Stop local Postgres services"
 	@echo "  make docker-status               # Show local Postgres service status"
@@ -59,6 +60,9 @@ validate-docker-infra:
 
 validate-dbt-project:
 	python3 tools/validate/check_dbt_project.py
+
+docker-tls-setup:
+	bash infra/docker/scripts/generate-tls-certs
 
 docker-up:
 	bash infra/docker/scripts/up

@@ -22,6 +22,26 @@ This document explains exactly how to start and stop the local runtime environme
 
 The root `.env` file is required by all Docker helper scripts.
 
+## Local PostgreSQL TLS setup
+
+TLS is enabled for all three Postgres services during startup.
+
+- `make docker-up` runs `infra/docker/scripts/generate-tls-certs` before `docker compose up`.
+- Generated assets are written to `infra/docker/tls/` (git-ignored).
+- Service containers then start through `infra/docker/scripts/postgres-entrypoint-with-tls.sh`, which applies explicit runtime settings:
+  - `ssl=on`
+  - `ssl_cert_file=<service cert path>`
+  - `ssl_key_file=<service key path>`
+  - `ssl_ca_file=<service CA path>`
+
+To generate/re-generate TLS assets manually:
+
+```bash
+make docker-tls-setup
+```
+
+Optional certificate validity override (days): `TLS_CERT_VALIDITY_DAYS` in root `.env`.
+
 ## Start environment
 
 ```bash
@@ -119,6 +139,22 @@ This removes containers and named volumes.
   - `0` when all warehouse bootstrap SQL files apply successfully
   - non-zero when any SQL file fails (`set -euo pipefail` + `ON_ERROR_STOP=1`)
 - **Example:** Runs automatically via Postgres entrypoint on first container start with fresh warehouse volume.
+
+### `infra/docker/scripts/generate-tls-certs`
+- **Purpose:** Generate local CA and service certificates/keys for CRM, ERP, and warehouse Postgres services.
+- **Inputs/Arguments:** No CLI arguments. Optionally reads `TLS_CERT_VALIDITY_DAYS` from root `.env`.
+- **Exit behavior:**
+  - `0` when TLS assets are generated successfully under `infra/docker/tls/`
+  - non-zero when `openssl` is unavailable or certificate generation fails
+- **Example:** `bash infra/docker/scripts/generate-tls-certs`
+
+### `infra/docker/scripts/postgres-entrypoint-with-tls.sh`
+- **Purpose:** Container entrypoint wrapper that copies TLS assets into container paths with Postgres-safe permissions and starts PostgreSQL with SSL enabled.
+- **Inputs/Arguments:** Requires `TLS_SERVICE_NAME` environment variable (`crm`, `erp`, `warehouse`) and existing mounted TLS assets under `/opt/postgres-tls/<service>/`.
+- **Exit behavior:**
+  - `0` when PostgreSQL starts with configured TLS settings
+  - non-zero when required TLS files are missing or container startup fails
+- **Example:** Invoked by each Postgres service entrypoint in `infra/docker/compose.yaml`.
 
 ### `infra/docker/scripts/up`
 - **Purpose:** Start local Postgres services and wait until all configured services report `healthy`.

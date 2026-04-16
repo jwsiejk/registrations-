@@ -37,6 +37,12 @@ Repo-local defaults:
 
 If ports are overridden in root `.env`, those override values are the ones the agent path must reach.
 
+## 3b) TLS expectation for connector paths
+
+The local Postgres endpoints exposed on ports `5433`, `5434`, and `5435` are TLS-enabled at the PostgreSQL layer.
+
+When testing connectivity and configuring manual Fivetran connectors/destination through the Proxy Agent path, use SSL-enabled Postgres settings (`sslmode=require` minimum).
+
 ## 4) Practical validation and health checks
 
 Use this order before blaming Fivetran.

@@ -72,3 +72,7 @@ Expected result note:
 5. Run raw readiness check, then dbt run/test when readiness passes.
 6. Apply source mutations, manually re-sync affected connectors, then validate again.
 7. Use source reseed/full reset runbooks for recovery and repeatable lab operation.
+
+## Follow-up updates after completion
+
+A post-phase infrastructure follow-up added local PostgreSQL TLS readiness and updated Phase 06 operator docs accordingly (`fivetran-setup.md`, `proxy-agent.md`, `validation.md`, and networking references).

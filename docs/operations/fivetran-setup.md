@@ -64,6 +64,18 @@ Source of truth:
 - Default host port variable: `.env.example`
 - DB name/user/password: `infra/docker/compose/postgres-warehouse.env`
 
+## 2b) TLS settings for manual Postgres connectors/destination
+
+All local Postgres services are TLS-enabled. For manual Fivetran configuration through Proxy Agent, configure PostgreSQL SSL mode as follows:
+
+- **Minimum:** `require`
+- **Preferred for validation-heavy runs:** `verify-ca` with CA certificate from:
+  - `infra/docker/tls/crm/ca.crt`
+  - `infra/docker/tls/erp/ca.crt`
+  - `infra/docker/tls/warehouse/ca.crt`
+
+The certificate assets are generated locally by `make docker-up` (or manually via `make docker-tls-setup`).
+
 ## 3) Source table and destination schema expectations
 
 ### Expected source tables

@@ -32,6 +32,26 @@ make validate
 - Docker/bootstrap structure validation and compose config validation
 - dbt project structure validation (`tools/validate/check_dbt_project.py`)
 
+## 2b) PostgreSQL TLS runtime checks
+
+Run these checks after `make docker-up` to verify TLS is active on each service.
+
+```bash
+docker exec postgres-crm psql -U crm_user -d crm -t -A -c "show ssl;"
+docker exec postgres-erp psql -U erp_user -d erp -t -A -c "show ssl;"
+docker exec postgres-warehouse psql -U warehouse_user -d warehouse -t -A -c "show ssl;"
+```
+
+Client SSL negotiation checks:
+
+```bash
+PGPASSWORD=crm_password psql "host=localhost port=5433 dbname=crm user=crm_user sslmode=require" -c "\conninfo"
+PGPASSWORD=erp_password psql "host=localhost port=5434 dbname=erp user=erp_user sslmode=require" -c "\conninfo"
+PGPASSWORD=warehouse_password psql "host=localhost port=5435 dbname=warehouse user=warehouse_user sslmode=require" -c "\conninfo"
+```
+
+These checks prove the server is TLS-enabled and the client negotiated SSL successfully.
+
 ## 3) dbt dependency and profile setup
 
 ```bash

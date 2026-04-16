@@ -81,6 +81,19 @@ make dbt-run
 make dbt-test
 ```
 
+## PostgreSQL TLS in local lab
+
+`make docker-up` now generates and wires local TLS certificates for all three Postgres services (`postgres-crm`, `postgres-erp`, `postgres-warehouse`) before containers start.
+
+- Generated cert path (ignored in git): `infra/docker/tls/`
+- Manual generation command (optional): `make docker-tls-setup`
+- TLS is enabled at PostgreSQL runtime with explicit `ssl_*` settings from `infra/docker/scripts/postgres-entrypoint-with-tls.sh`
+
+For TLS connection details and validation commands, see:
+- [`docs/operations/local-setup.md`](docs/operations/local-setup.md)
+- [`docs/operations/fivetran-setup.md`](docs/operations/fivetran-setup.md)
+- [`docs/operations/validation.md`](docs/operations/validation.md)
+
 ## Local database ports
 
 Default host ports (overridable in `.env`):
