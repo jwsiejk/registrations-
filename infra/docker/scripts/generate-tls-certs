@@ -120,7 +120,7 @@ EOT
     -out "$(openssl_path "$service_dir/server.crt")" \
     -days "$DAYS" \
     -sha256 \
-    -extfile "$(openssl_path "$ext_file")" >/dev/null 2>&1
+    -extfile "$(openssl_path "$ext_file")" >/dev/null 2>&1 || true
 
   cp "$CA_DIR/ca.crt" "$service_dir/ca.crt"
 
