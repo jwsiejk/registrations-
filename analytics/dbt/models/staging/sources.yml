@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: fivetran_crm
-    schema: fivetran_crm
+    schema: fivetran_crm_public
     tables:
       - name: accounts
         columns:
@@ -55,7 +55,7 @@ sources:
                     field: opportunity_id
 
   - name: fivetran_erp
-    schema: fivetran_erp
+    schema: fivetran_erp_public
     tables:
       - name: customers
         columns:

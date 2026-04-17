@@ -64,8 +64,8 @@ This document defines the purpose and usage of scripts in `tools/validate/`.
 - **Inputs/Arguments:** None.
 - **Prerequisites:** Root `.env` exists and `postgres-warehouse` is running.
 - **Checks:**
-  - `fivetran_crm`: `accounts`, `contacts`, `opportunities`, `opportunity_history`
-  - `fivetran_erp`: `customers`, `products`, `orders`, `order_items`, `invoices`
+  - `fivetran_crm_public`: `accounts`, `contacts`, `opportunities`, `opportunity_history`
+  - `fivetran_erp_public`: `customers`, `products`, `orders`, `order_items`, `invoices`
 - **Exit behavior:**
   - `0` when all required raw tables exist
   - `1` when one or more tables are missing or warehouse cannot be queried

@@ -96,8 +96,8 @@ ERP source (`public`):
 ### Expected destination raw schemas
 
 Manual Fivetran sync is expected to land raw tables in:
-- `fivetran_crm`
-- `fivetran_erp`
+- `fivetran_crm_public`
+- `fivetran_erp_public`
 
 These raw schema/table expectations are enforced by `make dbt-raw-source-readiness`.
 

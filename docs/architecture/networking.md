@@ -80,8 +80,8 @@ For connector setup, treat TLS as required and set PostgreSQL SSL mode according
 - Path: Fivetran Cloud -> Proxy Agent -> warehouse Postgres (`postgres-warehouse`)
 - Purpose: write raw replicated tables
 - Expected raw schemas in warehouse:
-  - `fivetran_crm`
-  - `fivetran_erp`
+  - `fivetran_crm_public`
+  - `fivetran_erp_public`
 
 ### 3) Local dbt traffic
 
@@ -92,8 +92,8 @@ For connector setup, treat TLS as required and set PostgreSQL SSL mode according
 ## Schema boundary: raw vs analytics
 
 Raw ingest schemas (created/populated by manual Fivetran sync):
-- `fivetran_crm`
-- `fivetran_erp`
+- `fivetran_crm_public`
+- `fivetran_erp_public`
 
 Analytics schemas (created by warehouse bootstrap SQL and used by dbt models):
 - `analytics`

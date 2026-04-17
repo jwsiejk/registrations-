@@ -79,7 +79,7 @@ Check:
 - **Local service down:** `make docker-status` shows service unavailable/unhealthy; local runtime issue.
 - **Bad credentials:** service is healthy but connector/destination auth fails; compare against env files above.
 - **Proxy Agent not healthy/registered:** local DBs are reachable from host, but Fivetran cannot connect through agent; check agent installation/registration/runtime health in your Fivetran account tooling.
-- **Raw-source sync not completed yet:** local services and credentials are correct, but `make dbt-raw-source-readiness` still reports missing `fivetran_crm` / `fivetran_erp` tables; manual sync has not landed all required raw tables yet.
+- **Raw-source sync not completed yet:** local services and credentials are correct, but `make dbt-raw-source-readiness` still reports missing `fivetran_crm_public` / `fivetran_erp_public` tables; manual sync has not landed all required raw tables yet.
 
 ## 5) What remains manual
 
