@@ -45,8 +45,8 @@ See durable reference: [`networking.md`](./networking.md).
 - **dbt transformation layer:**
   - Project at `analytics/dbt/`
   - Source definitions target expected Fivetran raw schemas:
-    - `fivetran_crm`
-    - `fivetran_erp`
+    - `fivetran_crm_public`
+    - `fivetran_erp_public`
   - Layered models:
     - Staging (`stg_*`)
     - Intermediate (`int_*`)

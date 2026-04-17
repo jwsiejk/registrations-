@@ -8,13 +8,13 @@ import subprocess
 import sys
 
 REQUIRED_TABLES: dict[str, list[str]] = {
-    "fivetran_crm": [
+    "fivetran_crm_public": [
         "accounts",
         "contacts",
         "opportunities",
         "opportunity_history",
     ],
-    "fivetran_erp": [
+    "fivetran_erp_public": [
         "customers",
         "products",
         "orders",
@@ -108,8 +108,8 @@ def main() -> int:
         print("FAIL: dbt raw-source readiness check failed.")
         print("Expected Fivetran raw tables are missing in postgres-warehouse.")
         print("This is expected until manual Fivetran sync lands raw tables into:")
-        print("  - fivetran_crm")
-        print("  - fivetran_erp")
+        print("  - fivetran_crm_public")
+        print("  - fivetran_erp_public")
         print("Missing tables:")
         for schema_name, table_name in missing_pairs:
             print(f"  - {schema_name}.{table_name}")

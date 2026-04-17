@@ -82,8 +82,8 @@ make dbt-raw-source-readiness
 
 This check verifies required base tables exist in warehouse schemas:
 
-- `fivetran_crm`: `accounts`, `contacts`, `opportunities`, `opportunity_history`
-- `fivetran_erp`: `customers`, `products`, `orders`, `order_items`, `invoices`
+- `fivetran_crm_public`: `accounts`, `contacts`, `opportunities`, `opportunity_history`
+- `fivetran_erp_public`: `customers`, `products`, `orders`, `order_items`, `invoices`
 
 Expected behavior:
 - **PASS:** required raw tables exist (manual sync already landed data)

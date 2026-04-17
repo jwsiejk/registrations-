@@ -21,8 +21,8 @@ Phase 01 through Phase 07 are in place:
 - dbt Core transformation project under `analytics/dbt`
 - Explicit dbt schema routing to exact layer schemas (`analytics_staging`, `analytics_intermediate`, `analytics_marts`)
 - Explicit raw-source readiness check for expected Fivetran destination schemas:
-  - `fivetran_crm`
-  - `fivetran_erp`
+  - `fivetran_crm_public`
+  - `fivetran_erp_public`
 - Controlled source-side mutation scenarios for CRM/ERP under `db/*/mutate`
 - Operator documentation for manual Fivetran and Proxy Agent setup
 - Phase 07 CI/validation hardening for repo structure and dbt project structure gates

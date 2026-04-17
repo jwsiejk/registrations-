@@ -23,8 +23,8 @@ Implement warehouse bootstrap and a real dbt transformation layer for the local 
    - `analytics/dbt/requirements.txt`
    - Layered staging/intermediate/marts models and YAML tests
 6. Added dbt source definitions against required raw schemas:
-   - `fivetran_crm` (`accounts`, `contacts`, `opportunities`, `opportunity_history`)
-   - `fivetran_erp` (`customers`, `products`, `orders`, `order_items`, `invoices`)
+   - `fivetran_crm_public` (`accounts`, `contacts`, `opportunities`, `opportunity_history`)
+   - `fivetran_erp_public` (`customers`, `products`, `orders`, `order_items`, `invoices`)
 7. Added Phase 04 Make targets:
    - `dbt-profile-setup`, `dbt-install-deps`, `dbt-deps`, `dbt-parse`, `dbt-compile`, `dbt-raw-source-readiness`, `dbt-run`, `dbt-test`
 8. Added explicit raw-source readiness checker:
